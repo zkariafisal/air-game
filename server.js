@@ -1,3 +1,7 @@
+/* ============================================================
+   خادم حرب الطائرات — اللعب الجماعي (لاعبان)
+   التشغيل:  npm install && node server.js
+   ============================================================ */
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
@@ -10,6 +14,7 @@ const MIME = {
   '.svg':'image/svg+xml', '.json':'application/json'
 };
 
+/* -------- ملفات ثابتة + الصور -------- */
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]);
   if (p === '/') p = '/index.html';
@@ -21,6 +26,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
+/* -------- WebSocket -------- */
 const wss = new WebSocketServer({ server });
 const rooms = new Map();
 let nextPid = 1;
@@ -99,6 +105,9 @@ function aimed(room, x, y, tgt, sp = 235) {
   room.ebullets.push({ id: room.nextBid++, x, y, vx: dx/L*sp, vy: dy/L*sp, r: 7 });
 }
 
+/* ★ معدل اللقطة 20 مرة/ثانية (بدل 30) لتقليل الحِمل */
+const SNAPSHOT_INTERVAL = 0.050;
+
 function tickRoom(room) {
   if (room.state !== 'playing') return;
   const now = Date.now();
@@ -160,7 +169,7 @@ function tickRoom(room) {
   }
 
   room.snapAcc += ds;
-  if (room.snapAcc >= 0.066) {
+  if (room.snapAcc >= SNAPSHOT_INTERVAL) {
     room.snapAcc = 0;
     bcast(room, {
       t:'S',
@@ -190,6 +199,7 @@ function startRoom(room, levelIndex) {
   bcast(room, { t:'start', levelIndex });
 }
 
+/* -------- الاتصالات -------- */
 wss.on('connection', ws => {
   const pid = 'p' + (nextPid++);
   let room = null;
@@ -220,15 +230,17 @@ wss.on('connection', ws => {
     else if (m.t === 'restart' && room.hostId === pid) {
       startRoom(room, room.levelIndex);
     }
+    /* ★ رسالة 'p' المدمجة: موقع + طلقات في وقت واحد */
     else if (m.t === 'p') {
       const p = room.players.get(pid);
       if (p) { p.x = Math.max(0, Math.min(W, m.x)); p.y = Math.max(0, Math.min(H, m.y)); }
+
+      if (m.shoot && Array.isArray(m.shoot) && m.shoot.length) {
+        /* حد أمان: لا نمرر أكثر من 60 طلقة في رسالة واحدة */
+        const arr = m.shoot.length > 60 ? m.shoot.slice(-60) : m.shoot;
+        bcastExcept(room, pid, { t:'shoot', owner: pid, bullets: arr });
+      }
     }
-    /* ★★★ بث رصاص اللاعب إلى اللاعب الآخر ★★★ */
-    else if (m.t === 'shoot') {
-      bcastExcept(room, pid, { t:'shoot', owner: pid, bullets: m.bullets });
-    }
-    /* ★★★ ضرر على الأعداء ★★★ */
     else if (m.t === 'hit') {
       const e = room.enemies.find(v => v.id === m.id);
       if (!e) return;
@@ -257,7 +269,7 @@ wss.on('connection', ws => {
         bcast(room, { t:'hp', id:p.id, hp:p.hp, alive:true });
       }
     }
-    /* ★★★ تمرير رسائل WebRTC للصوت بين اللاعبَين ★★★ */
+    /* WebRTC signaling (صوت) */
     else if (m.t === 'rtc-desc' || m.t === 'rtc-ice') {
       bcastExcept(room, pid, m);
     }
