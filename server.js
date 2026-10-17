@@ -1,7 +1,3 @@
-/* ============================================================
-   خادم حرب الطائرات — اللعب الجماعي (لاعبَان)
-   التشغيل:  npm install && node server.js
-   ============================================================ */
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
@@ -14,7 +10,6 @@ const MIME = {
   '.svg':'image/svg+xml', '.json':'application/json'
 };
 
-/* -------- ملفات ثابتة + الصور -------- */
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]);
   if (p === '/') p = '/index.html';
@@ -26,7 +21,6 @@ const server = http.createServer((req, res) => {
   });
 });
 
-/* -------- WebSocket -------- */
 const wss = new WebSocketServer({ server });
 const rooms = new Map();
 let nextPid = 1;
@@ -36,6 +30,11 @@ const send = (ws, o) => ws.readyState === 1 && ws.send(JSON.stringify(o));
 const bcast = (room, o) => {
   const s = JSON.stringify(o);
   for (const p of room.players.values()) if (p.ws.readyState === 1) p.ws.send(s);
+};
+const bcastExcept = (room, exceptId, o) => {
+  const s = JSON.stringify(o);
+  for (const p of room.players.values())
+    if (p.id !== exceptId && p.ws.readyState === 1) p.ws.send(s);
 };
 
 function newCode() {
@@ -100,7 +99,6 @@ function aimed(room, x, y, tgt, sp = 235) {
   room.ebullets.push({ id: room.nextBid++, x, y, vx: dx/L*sp, vy: dy/L*sp, r: 7 });
 }
 
-/* -------- حلقة تحديث الغرفة (30 هرتز) -------- */
 function tickRoom(room) {
   if (room.state !== 'playing') return;
   const now = Date.now();
@@ -192,7 +190,6 @@ function startRoom(room, levelIndex) {
   bcast(room, { t:'start', levelIndex });
 }
 
-/* -------- اتصالات -------- */
 wss.on('connection', ws => {
   const pid = 'p' + (nextPid++);
   let room = null;
@@ -200,7 +197,6 @@ wss.on('connection', ws => {
   ws.on('message', raw => {
     let m; try { m = JSON.parse(raw); } catch { return; }
 
-    /* إنشاء غرفة */
     if (m.t === 'create') {
       const code = newCode();
       room = makeRoom(code);
@@ -208,7 +204,6 @@ wss.on('connection', ws => {
       join(room, ws, pid, m.name);
       return;
     }
-    /* انضمام */
     if (m.t === 'join') {
       const r = rooms.get(String(m.code||'').toUpperCase());
       if (!r) return send(ws, { t:'err', msg:'الغرفة غير موجودة ❌' });
@@ -229,6 +224,11 @@ wss.on('connection', ws => {
       const p = room.players.get(pid);
       if (p) { p.x = Math.max(0, Math.min(W, m.x)); p.y = Math.max(0, Math.min(H, m.y)); }
     }
+    /* ★★★ بث رصاص اللاعب إلى اللاعب الآخر ★★★ */
+    else if (m.t === 'shoot') {
+      bcastExcept(room, pid, { t:'shoot', owner: pid, bullets: m.bullets });
+    }
+    /* ★★★ ضرر على الأعداء ★★★ */
     else if (m.t === 'hit') {
       const e = room.enemies.find(v => v.id === m.id);
       if (!e) return;
@@ -256,6 +256,10 @@ wss.on('connection', ws => {
       } else {
         bcast(room, { t:'hp', id:p.id, hp:p.hp, alive:true });
       }
+    }
+    /* ★★★ تمرير رسائل WebRTC للصوت بين اللاعبَين ★★★ */
+    else if (m.t === 'rtc-desc' || m.t === 'rtc-ice') {
+      bcastExcept(room, pid, m);
     }
     else if (m.t === 'leave') ws.close();
   });
