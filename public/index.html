@@ -8,10 +8,12 @@
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden;background:#030815;color:white;font-family:system-ui,Tahoma,sans-serif;touch-action:none;user-select:none}#stage{position:absolute;overflow:hidden;left:50%;top:50%;transform:translate(-50%,-50%);background:#071328;box-shadow:0 0 35px #1250a155}canvas{display:block;width:100%;height:100%}#hud{position:absolute;inset:0 0 auto;padding:8px;pointer-events:none;display:flex;align-items:flex-start;justify-content:space-between;gap:4px;font-size:12px;font-weight:800}#hud .col{display:grid;gap:5px}.pill{background:#061429d9;border:1px solid #6ccaff55;border-radius:11px;padding:5px 8px;white-space:nowrap;backdrop-filter:blur(5px)}button{font-family:inherit;cursor:pointer;border:0;color:white;font-weight:800}#hud button{pointer-events:auto;background:#132b51dd;border:1px solid #4bbaff77;border-radius:10px;padding:7px;font-size:17px}#weaponbar{position:absolute;bottom:12px;left:8px;right:8px;display:flex;justify-content:center;gap:5px;pointer-events:auto}#weaponbar button{min-width:41px;flex:1;max-width:65px;padding:7px 2px;background:#0b193ad9;border:1px solid #3c6a9e;border-radius:11px;font-size:17px}#weaponbar button.sel{border-color:#ffdb62;background:#745015dd;box-shadow:0 0 14px #ffc33c66}#bombBtn{position:absolute;bottom:76px;right:13px;padding:12px;background:#9d313cdd;border:1px solid #ff9999;border-radius:50%;font-size:21px;display:none}#overlay{position:absolute;inset:0;background:#030b1be8;display:flex;justify-content:center;align-items:center;overflow:auto;padding:16px;backdrop-filter:blur(5px)}#overlay.hide{display:none}.panel{width:100%;max-width:430px;max-height:95%;overflow:auto;text-align:center;background:linear-gradient(145deg,#102449,#080f25);border:1px solid #5d9bda77;border-radius:22px;padding:17px;box-shadow:0 10px 50px #0009}.panel h1{font-size:26px;color:#83dfff;margin:6px 0 12px}.panel p{font-size:13px;line-height:1.8;color:#b7cce5}.big{padding:12px 20px;border-radius:13px;background:linear-gradient(100deg,#12a9d6,#6266e8);margin:5px;font-size:15px}.secondary{background:#263f6b}.tabs{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}.tabs button{padding:9px;border-radius:10px;background:#28446d}.card{display:flex;justify-content:space-between;align-items:center;text-align:right;gap:8px;background:#152b4c;border:1px solid #33547d;border-radius:12px;padding:9px;margin:7px 0;font-size:12px}.card small{color:#a8c0db;display:block;margin-top:3px}.card button{background:#137eaa;border-radius:9px;padding:9px;min-width:86px}.card button:disabled{opacity:.5}.tiny{font-size:11px;color:#9bb8d6}.notice{color:#ffe28a!important}#toast{position:absolute;top:110px;left:15%;width:70%;text-align:center;font-weight:900;color:#ffe282;text-shadow:0 2px 8px black;pointer-events:none;opacity:0;transition:opacity .2s}#bossBar{position:absolute;top:72px;left:12%;width:76%;height:11px;border-radius:9px;background:#2b1223;display:none;overflow:hidden;border:1px solid #fff5}#bossFill{height:100%;background:linear-gradient(90deg,#ff445d,#ffcc65);width:100%}
 .levelgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}.levelgrid button{min-height:53px;border-radius:11px;background:#183960;border:1px solid #4b7aa0;font-size:14px}.levelgrid button.locked{opacity:.4;background:#101b31}.levelgrid button.done{background:#205b4b;border-color:#58e8b4}.levelgrid button.current{background:#785426;border-color:#ffcf65}.worldgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.worldgrid button{border-radius:12px;padding:12px 5px;min-height:65px;background:#183455;border:1px solid #4d779a}.worldgrid button:disabled{opacity:.45}.setting{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:right;background:#162d4e;border-radius:12px;padding:12px;margin:9px 0}.setting select,.setting input{max-width:135px;accent-color:#5dd6ff}.setting select{background:#091c36;color:white;padding:7px;border-radius:8px}.progress{height:9px;background:#12233a;border-radius:9px;overflow:hidden;margin:8px 0}.progress>div{height:100%;background:linear-gradient(90deg,#26b5db,#ffc65d)}
-/* ★ شاشة الغرفة */
 .roomcode{font-size:34px;letter-spacing:10px;color:#ffd76c;font-weight:900;text-shadow:0 0 20px #ffc94d99;margin:8px 0}
 .badge{display:inline-block;background:#2a7a4f;color:#c9ffd9;padding:3px 9px;border-radius:20px;font-size:11px;margin:0 4px}
 .pill.net{border-color:#6dff9d55;color:#9dffb7}
+#micBtn{background:#132b51dd;border:1px solid #4bbaff77}
+#micBtn.on{background:#1d8348!important;border-color:#4bff7c!important;box-shadow:0 0 12px #4bff7c99}
+#remoteAudio{display:none}
 </style>
 </head>
 <body>
@@ -26,11 +28,12 @@
     <div class="col" style="text-align:center">
       <div class="pill">🌍 <span id="world">1</span>/20 · <span id="levelHUD">1</span>/20</div>
       <div class="pill">🔥 ×<span id="combo">1</span></div>
-      <div class="pill net" id="netPill" style="display:none">🌐 <span id="roomLabel">—</span> · <span id="pingLabel">0ms</span></div>
+      <div class="pill net" id="netPill" style="display:none">🌐 <span id="roomLabel">—</span></div>
     </div>
     <div class="col">
       <button id="pause">⏸</button>
       <button id="sound">🔊</button>
+      <button id="micBtn" style="display:none">🎤</button>
     </div>
   </div>
 
@@ -46,14 +49,12 @@
     </div>
   </div>
 </div>
+<audio id="remoteAudio" autoplay playsinline></audio>
 
 <script>
 (() => {
   'use strict';
 
-  /* =========================================================
-     ★★★ الثوابت الأساسية (كما هي) ★★★
-     ========================================================= */
   const W = 480, H = 854, TAU = Math.PI * 2;
   const $ = id => document.getElementById(id);
   const cv = $('game'), ctx = cv.getContext('2d'), stage = $('stage');
@@ -71,14 +72,16 @@
   }
   addEventListener('resize', resize); resize();
 
-  /* =========================================================
-     ★★★ تحميل الصور (كما هي) ★★★
-     ========================================================= */
+  /* ★★★ الصور ★★★ */
   const files = {
-    player:'player.png', grunt:'enemy_grunt.png', zig:'enemy_zig.png',
-    tank:'enemy_tank.png', boss:'boss.png', bullet:'bullet.png',
-    ebullet:'ebullet.png', life:'powerup_life.png', power:'powerup_power.png',
-    background:'background.png'
+    player:'player.png',
+    player2:'player2.png',     /* ← طائرة اللاعب الثاني (الضيف) */
+    grunt:'enemy_grunt.png', zig:'enemy_zig.png',
+    tank:'enemy_tank.png', boss:'boss.png',
+    bullet:'bullet.png',
+    bullet2:'bullet2.png',     /* ← طلقة اللاعب الثاني (الضيف) */
+    ebullet:'ebullet.png', life:'powerup_life.png',
+    power:'powerup_power.png', background:'background.png'
   };
   const imgs = {}; let imgLoadedCount = 0;
   const imgTotal = Object.keys(files).length;
@@ -102,27 +105,22 @@
     return true;
   }
 
-  /* =========================================================
-     ★★★ الأسلحة والعوالم ★★★
-     ========================================================= */
   const WEAP = [
     ['🔫','رشاش','machine','رصاص متواصل سريع'],
-    ['🚀','صواريخ','missile','صواريخ تتبع أقرب عدو'],
-    ['⚡','ليزر','laser','شعاع يخترق الأعداء'],
-    ['💣','قنابل','bomb','قنبلة تمسح المقوفات'],
-    ['🔥','ناري','fire','طلقات نارية قوية'],
-    ['🌪️','دائري','radial','رصاص في جميع الاتجاهات']
+    ['🚀','صواريخ','missile','صواريخ تتبع'],
+    ['⚡','ليزر','laser','شعاع يخترق'],
+    ['💣','قنابل','bomb','قنبلة شاملة'],
+    ['🔥','ناري','fire','طلقات نارية'],
+    ['🌪️','دائري','radial','رصاص دائري']
   ];
   const WORLD_NAMES = ['سماء المدينة','الصحراء الحربية','المحيط','الجبال الثلجية','الغابة','المدينة المدمرة','المنطقة البركانية','الفضاء','قاعدة الأعداء','العاصفة الرعدية','سماء الغروب','الجزر الطائرة','ممر النيازك','أعماق المحيط','الصحراء الليلية','العالم الجليدي','المجرة البنفسجية','حصن الحديد','بوابة الظلال','المعركة النهائية'];
   const WORLD_PALETTE = [['#07162d','#194d85'],['#281b2d','#c18a43'],['#061b3b','#087eaa'],['#13283f','#9ad0e6'],['#071f19','#28644a'],['#281c23','#7e5047'],['#250b17','#b84324'],['#07051c','#241057'],['#101b2a','#526879'],['#230b2c','#6d1a4c']];
-  const WORLD_COUNT = 20;
-  const WORLD_THEMES = Array.from({length:WORLD_COUNT},(_,i)=>{
+  const WORLD_THEMES = Array.from({length:20},(_,i)=>{
     const b = WORLD_PALETTE[i % WORLD_PALETTE.length];
     return [WORLD_NAMES[i], b[0], b[1]];
   });
   const today = () => new Date().toLocaleDateString('en-CA');
 
-  /* ★★★ الحفظ ★★★ */
   let save = {
     coins:0, best:0, unlocked:[0], playerName:'لاعب',
     upgrades:{damage:0, armor:0, magnet:0},
@@ -139,7 +137,6 @@
   save.progress = Math.max(0, Math.min(400, Number(save.progress)||0));
   save.settings = {sound:true, volume:65, particles:'medium', shake:true, stars:true, controls:'normal', ...(save.settings||{})};
 
-  /* ★★★ حالة اللعبة ★★★ */
   let selectedLevel = Math.min(399, save.progress);
   let level = 1, worldIndex = 0, levelDuration = 28;
   let state = 'menu', score = 0, earned = 0, kills = 0, world = 1;
@@ -150,16 +147,17 @@
   let audio = null;
 
   let enemies = [], shots = [], bad = [], drops = [], particles = [];
+  const remoteShots = [];  /* ★ رصاص اللاعب الآخر */
   const stars = Array.from({length:90},()=>({x:rnd(0,W),y:rnd(0,H),z:rnd(.3,1.4)}));
 
   const player = {x:W/2,y:H-155,tx:W/2,ty:H-155,hp:3,maxHp:3,inv:0,shield:0,power:1,fire:0,bombs:2,alive:true};
 
   /* =========================================================
-     ★★★ ★ الشبكة ★ ★★★
+     ★★★ الشبكة ★★★
      ========================================================= */
   const net = {
-    ws: null, connected: false, roomCode: '', myId: '', host: false,
-    players: new Map(), online: false, sendT: 0, ping: 0, lastHurtSent: 0
+    ws: null, connected: false, roomCode: '', myId: '', hostId: '', host: false,
+    players: new Map(), online: false, sendT: 0
   };
 
   function netConnect(cb){
@@ -173,35 +171,32 @@
     net.ws.onopen = () => { net.connected = true; cb && cb(); };
     net.ws.onclose = () => {
       net.connected = false;
-      if (net.online) {
-        net.online = false;
-        toast('⚠️ انقطع الاتصال بالخادم');
-        main();
-      }
+      if (net.online){ net.online = false; cleanupRTC(); toast('⚠️ انقطع الاتصال'); main(); }
     };
     net.ws.onerror = () => toast('❌ تعذّر الاتصال بالخادم');
     net.ws.onmessage = e => { try { handleNet(JSON.parse(e.data)); } catch(err){} };
   }
-
-  function netSend(o){
-    if (net.ws && net.ws.readyState === 1) net.ws.send(JSON.stringify(o));
-  }
+  function netSend(o){ if (net.ws && net.ws.readyState === 1) net.ws.send(JSON.stringify(o)); }
 
   function handleNet(m){
     switch(m.t){
       case 'joined':
-        net.roomCode = m.code; net.myId = m.id; net.host = m.hostId === m.id;
+        net.roomCode = m.code; net.myId = m.id; net.hostId = m.hostId;
+        net.host = m.hostId === m.id;
         net.players = new Map();
         m.players.forEach(p => net.players.set(p.id, p));
+        updateMicUI();
         lobbyScreen(); break;
       case 'lobby':
         net.players = new Map();
         m.players.forEach(p => net.players.set(p.id, p));
+        net.hostId = m.host;
         net.host = m.host === net.myId;
         if (state === 'lobby') lobbyScreen();
         break;
       case 'start': startOnline(m.levelIndex); break;
       case 'S': applySnapshot(m); break;
+      case 'shoot': onRemoteShoot(m); break;   /* ★ رصاص اللاعب الآخر */
       case 'kill': onKill(m.id); break;
       case 'hp': onHpMsg(m); break;
       case 'boss': bossActive = true; toast('⚠️ ظهر الزعيم!'); break;
@@ -209,13 +204,15 @@
       case 'left':
         net.players.delete(m.id);
         if (state === 'play' || state === 'lobby') toast('🚪 غادر أحد اللاعبين');
+        cleanupRTC();
         break;
       case 'err': toast(m.msg); break;
+      case 'rtc-desc': handleRTCDesc(m); break;   /* ★ إشارات الصوت */
+      case 'rtc-ice':  handleRTCIce(m);  break;
     }
   }
 
   function applySnapshot(m){
-    /* ---- الأعداء ---- */
     const seen = new Set();
     for (const [id,type,x,y,hp,max,r] of m.enemies){
       seen.add(id);
@@ -227,7 +224,6 @@
     }
     for (let i = enemies.length-1; i>=0; i--) if (!seen.has(enemies[i].id)) enemies.splice(i,1);
 
-    /* ---- رصاص الأعداء ---- */
     const ebSeen = new Set();
     for (const [id,x,y,vx,vy] of m.eb){
       ebSeen.add(id);
@@ -237,7 +233,6 @@
     }
     for (let i = bad.length-1; i>=0; i--) if (!ebSeen.has(bad[i].id)) bad.splice(i,1);
 
-    /* ---- اللاعبون ---- */
     const pm = new Map();
     for (const [id,x,y,hp,alive,name] of m.players)
       pm.set(id, { id, x, y, hp, alive:!!alive, name });
@@ -251,6 +246,14 @@
         if (me.alive){ player.inv = 2; toast('✨ عدت للمعركة!'); }
         else toast('💀 ستعود بعد 6 ثوانٍ...');
       }
+    }
+  }
+
+  /* ★★★ استقبال رصاص اللاعب الآخر ★★★ */
+  function onRemoteShoot(m){
+    const sprite = m.owner === net.hostId ? 'bullet' : 'bullet2';
+    for (const b of m.bullets){
+      remoteShots.push({ ...b, owner: m.owner, sprite, life: 2.5 });
     }
   }
 
@@ -277,12 +280,11 @@
   function netHurt(){
     if (!player.alive || player.inv > 0) return;
     const now = Date.now();
-    if (now - net.lastHurtSent < 600) return;
+    if (now - (net.lastHurtSent||0) < 600) return;
     net.lastHurtSent = now;
     player.inv = 1.0;
     netSend({ t:'hurt' });
-    tone(160, .3);
-    shake = 11;
+    tone(160, .3); shake = 11;
     burst(player.x, player.y, '#8feaff', 22);
   }
 
@@ -306,6 +308,115 @@
   }
 
   /* =========================================================
+     ★★★ WebRTC — دردشة صوتية ★★★
+     ========================================================= */
+  let peerConn = null, localStream = null, micOn = false;
+  let makingOffer = false, ignoreOffer = false, isSettingRemoteAnswerPending = false;
+  const polite = () => !net.host;   /* الضيف مهذب (يتنازل عند التعارض) */
+  const remoteAudio = document.getElementById('remoteAudio');
+
+  function ensurePC(){
+    if (peerConn) return;
+    peerConn = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    });
+
+    peerConn.onicecandidate = ({ candidate }) => {
+      if (candidate) netSend({ t:'rtc-ice', cand: candidate });
+    };
+    peerConn.ontrack = ({ streams: [stream] }) => {
+      remoteAudio.srcObject = stream;
+      remoteAudio.play().catch(()=>{});
+      toast('🔊 متصل صوتياً');
+    };
+    peerConn.onnegotiationneeded = async () => {
+      try {
+        makingOffer = true;
+        await peerConn.setLocalDescription();
+        netSend({ t:'rtc-desc', desc: peerConn.localDescription });
+      } catch (e) { console.error(e); }
+      finally { makingOffer = false; }
+    };
+    peerConn.onconnectionstatechange = () => {
+      const s = peerConn.connectionState;
+      if (s === 'connected') toast('🎤 الصوت متصل');
+      if (s === 'failed') toast('⚠️ فشل الاتصال الصوتي');
+    };
+  }
+
+  async function handleRTCDesc(m){
+    ensurePC();
+    const readyForOffer = !makingOffer &&
+      (peerConn.signalingState === 'stable' || isSettingRemoteAnswerPending);
+    const offerCollision = m.desc.type === 'offer' && !readyForOffer;
+
+    ignoreOffer = !polite() && offerCollision;
+    if (ignoreOffer) return;
+
+    isSettingRemoteAnswerPending = m.desc.type === 'answer';
+    await peerConn.setRemoteDescription(m.desc);
+    isSettingRemoteAnswerPending = false;
+
+    if (m.desc.type === 'offer'){
+      await peerConn.setLocalDescription();
+      netSend({ t:'rtc-desc', desc: peerConn.localDescription });
+    }
+  }
+
+  async function handleRTCIce(m){
+    if (!peerConn) return;
+    try { await peerConn.addIceCandidate(m.cand); }
+    catch (e) { if (!ignoreOffer) console.warn(e); }
+  }
+
+  async function toggleMic(){
+    if (micOn){
+      micOn = false;
+      if (localStream){
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+      if (peerConn){
+        peerConn.getSenders().forEach(s => { if (s.track) peerConn.removeTrack(s); });
+      }
+      updateMicUI();
+      return;
+    }
+    try {
+      micOn = true; updateMicUI();
+      localStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+      });
+      ensurePC();
+      for (const t of localStream.getTracks()) peerConn.addTrack(t, localStream);
+      toast('🎤 الميكروفون مفتوح');
+    } catch (err){
+      toast('❌ فشل المايك: ' + err.message);
+      micOn = false; updateMicUI();
+    }
+  }
+
+  function cleanupRTC(){
+    if (localStream){ localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+    if (peerConn){ try { peerConn.close(); } catch(e){} peerConn = null; }
+    micOn = false;
+    if (remoteAudio) remoteAudio.srcObject = null;
+    updateMicUI();
+  }
+
+  function updateMicUI(){
+    const btn = $('micBtn');
+    if (!btn) return;
+    btn.style.display = net.online ? 'block' : 'none';
+    btn.classList.toggle('on', micOn);
+    btn.textContent = micOn ? '🎙️' : '🎤';
+    btn.title = micOn ? 'إيقاف الميكروفون' : 'تشغيل الميكروفون';
+  }
+
+  /* =========================================================
      ★★★ HUD والقوائم ★★★
      ========================================================= */
   function toast(s){ $('toast').textContent = s; $('toast').style.opacity = 1; toastTime = 2; }
@@ -323,7 +434,6 @@
     if (net.online){
       $('netPill').style.display = 'block';
       $('roomLabel').textContent = net.roomCode;
-      $('pingLabel').textContent = net.ping + 'ms';
     } else $('netPill').style.display = 'none';
   }
 
@@ -335,23 +445,22 @@
     hud();
   }
 
-  /* ★★★ القائمة الرئيسية + زر جماعي ★★★ */
   function main(){
     net.online = false;
     $('sound').textContent = sound ? '🔊' : '🔇';
+    updateMicUI();
     menu('✈️ حرب الطائرات: الأساطير', `
-      <p>🏆 20 عالماً × 20 مستوى = <b>400 مستوى</b><br>افتح المستويات بالترتيب واهزم الزعيم.</p>
+      <p>🏆 20 عالماً × 20 مستوى = <b>400 مستوى</b></p>
       <p>⭐ التقدم: ${Math.min(400,save.progress)}/400 | 🪙 ${save.coins} | 🏆 ${save.best}</p>
       <div class="progress"><div style="width:${save.progress/4}%"></div></div>
       <button class="big" id="continue">▶ ${save.progress>=400?'إعادة المرحلة الأخيرة':'متابعة المستوى '+(Math.min(399,save.progress)%20+1)}</button>
-      <button class="big" style="background:linear-gradient(100deg,#27b56a,#4fd8a1)" id="onlineBtn">🌐 اللعب الجماعي (لاعبان)</button>
+      <button class="big" style="background:linear-gradient(100deg,#27b56a,#4fd8a1)" id="onlineBtn">🌐 اللعب الجماعي + 🎙️ صوت</button>
       <div class="tabs">
         <button id="worlds">🗺️ المراحل</button>
         <button id="shop">🛒 المتجر</button>
         <button id="tasks">📅 المهام</button>
         <button id="settings">⚙️ الإعدادات</button>
       </div>
-      <p class="tiny">التقدم محفوظ محلياً على هذا الجهاز.</p>
     `);
     $('continue').onclick = () => start(Math.min(399, save.progress));
     $('onlineBtn').onclick = onlineMenu;
@@ -361,16 +470,15 @@
     $('settings').onclick = settingsPage;
   }
 
-  /* ★★★ قائمة اللعب الجماعي ★★★ */
   function onlineMenu(){
-    menu('🌐 اللعب الجماعي', `
-      <p>العب مع صديقك عبر الإنترنت. أنشئ غرفة وشارك الرمز، أو انضم برمز صديقك.</p>
+    menu('🌐 اللعب الجماعي + 🎙️', `
+      <p>العب أنت وصديقك معاً بصوت حي. أنشئ غرفة وشارك الرمز، أو انضم برمز صديقك.</p>
+      <p class="tiny">🛩️ المضيف: طائرة زرقاء · الضيف: طائرة ثانية خاصة.</p>
       <div class="setting"><label>اسمك</label>
         <input id="pname" value="${save.playerName||'لاعب'}" maxlength="12" style="padding:8px;border-radius:8px;border:1px solid #3d6f96;background:#091c36;color:#fff;width:130px;text-align:center">
       </div>
       <button class="big" id="createRoom" style="background:linear-gradient(100deg,#27b56a,#3fbf88)">➕ إنشاء غرفة</button>
       <hr style="border-color:#2b4c72;margin:14px 0">
-      <p class="tiny">لديك رمز غرفة؟ أدخله هنا:</p>
       <div class="setting"><label>رمز الغرفة</label>
         <input id="joincode" placeholder="ABCDE" maxlength="6" style="padding:8px;border-radius:8px;border:1px solid #3d6f96;background:#091c36;color:#fff;width:130px;text-align:center;letter-spacing:4px;text-transform:uppercase">
       </div>
@@ -390,14 +498,12 @@
     };
   }
 
-  /* ★★★ شاشة الغرفة ★★★ */
   function lobbyScreen(){
-    let list = '';
-    let n = 0;
+    let list = '', n = 0;
     for (const [id,p] of net.players){
       n++;
-      const host = id === [...net.players.keys()][0];
-      list += `<div class="card"><div><b>${p.name||'لاعب'}</b> ${host?'<span class="badge">مضيف</span>':''}${id===net.myId?' (أنت)':''}</div>
+      const isHost = id === net.hostId;
+      list += `<div class="card"><div><b>${p.name||'لاعب'}</b> ${isHost?'<span class="badge">🛩️ المضيف</span>':'<span class="badge" style="background:#7a4a2a;color:#ffd9b8">✈️ الضيف</span>'}${id===net.myId?' (أنت)':''}</div>
                  <div>${id===net.myId?'🎮':'🛰️'}</div></div>`;
     }
     const isHost = net.host;
@@ -409,18 +515,22 @@
       <div class="roomcode">${net.roomCode}</div>
       <p class="tiny">اللاعبون (${n}/2):</p>
       ${list}
+      <div class="setting" style="margin-top:14px">
+        <label>🎙️ الدردشة الصوتية</label>
+        <button class="big" id="micToggle" style="margin:0;padding:9px 16px;${micOn?'background:#1d8348':''}">${micOn?'🔴 إيقاف':'🟢 تشغيل'}</button>
+      </div>
       ${isHost
-        ? `<button class="big" id="startNet" style="background:linear-gradient(100deg,#27b56a,#4fd8a1)" ${n<1?'disabled':''}>▶ بدء المعركة</button>
+        ? `<button class="big" id="startNet" style="background:linear-gradient(100deg,#27b56a,#4fd8a1)">▶ بدء المعركة</button>
            <p class="tiny">ستبدأ في: 🌍 ${w} · المستوى ${l}</p>`
         : `<p class="notice">⏳ بانتظار المضيف ليبدأ اللعبة...</p>`}
       <button class="big secondary" id="leaveRoom">🚪 مغادرة الغرفة</button>
     `);
     state = 'lobby';
-    $('leaveRoom').onclick = () => { netSend({ t:'leave' }); net.online = false; try { net.ws.close(); } catch(e){} main(); };
+    $('micToggle').onclick = async () => { await toggleMic(); lobbyScreen(); };
+    $('leaveRoom').onclick = () => { cleanupRTC(); netSend({ t:'leave' }); net.online = false; try { net.ws.close(); } catch(e){} main(); };
     if (isHost) $('startNet').onclick = () => netSend({ t:'start', level: hostLevel });
   }
 
-  /* ★★★ بدء اللعبة الجماعية ★★★ */
   function startOnline(index){
     net.online = true;
     selectedLevel = index;
@@ -430,34 +540,32 @@
     score = earned = kills = time = 0;
     spawn = .6; bossActive = bossDone = false;
     shake = 0; combo = 1; comboTime = 0; slow = 0; weapon = 0;
-    enemies = []; shots = []; bad = []; drops = []; particles = [];
+    enemies = []; shots = []; bad = []; drops = []; particles = []; remoteShots.length = 0;
     Object.assign(player, { x:W/2, y:H-155, tx:W/2, ty:H-155,
       maxHp:3+save.upgrades.armor, hp:3+save.upgrades.armor,
       inv:2, shield:0, power:1, fire:0, bombs:3, alive:true });
     $('overlay').classList.add('hide');
-    buildBar(); hud();
+    buildBar(); hud(); updateMicUI();
     toast('🌐 معركة جماعية — ' + WORLD_NAMES[worldIndex] + ' · المستوى ' + level);
   }
 
-  /* ★★★ نهاية اللعبة الجماعية ★★★ */
   function finishOnline(win){
     if (state === 'over') return;
     state = 'over';
     save.best = Math.max(save.best, score); persist();
     menu(win?'🏆 انتصار الفريق!':'💥 انتهت المعركة', `
-      <p>النقاط: <b>${score}</b> | 🪙 ${earned}<br>الطائرات المدمرة: ${kills}<br>الزعيم ${win?'مُدَمَّر ✅':'لم يُهزم بعد'}</p>
+      <p>النقاط: <b>${score}</b> | 🪙 ${earned}<br>الطائرات المدمرة: ${kills}</p>
       ${net.host ? '<button class="big" id="againNet">🔁 معركة جديدة</button>'
                  : '<p class="tiny">بانتظار المضيف...</p>'}
       <button class="big secondary" id="leaveNet">🚪 مغادرة الغرفة</button>
     `);
     state = 'over';
     $('againNet')?.addEventListener('click', () => netSend({ t:'restart' }));
-    $('leaveNet').onclick = () => { netSend({ t:'leave' }); net.online = false; try { net.ws.close(); } catch(e){} main(); };
+    $('leaveNet').onclick = () => { cleanupRTC(); netSend({ t:'leave' }); net.online = false; try { net.ws.close(); } catch(e){} main(); };
   }
 
-  /* ★★★ اختيار المرحلة (فردي) ★★★ */
   function worldSelect(){
-    let html = `<p>اختر عالماً. 🟢 مكتمل · 🟡 الحالي · 🔒 مغلق</p><div class="worldgrid">`;
+    let html = `<p>اختر عالماً.</p><div class="worldgrid">`;
     for (let i = 0; i < 20; i++){
       const first = i*20;
       const open = first <= save.progress;
@@ -477,27 +585,25 @@
       html += `<button class="${done?'done':open?'current':'locked'}" data-l="${n}" ${open?'':'disabled'}>${done?'★':open?'▶':'🔒'}<br>${j+1}</button>`;
     }
     html += `</div><button class="big secondary" id="back">⬅ العوالم</button>`;
-    menu('🎯 مستويات المرحلة ' + (w+1), html);
+    menu('🎯 مستويات ' + (w+1), html);
     document.querySelectorAll('[data-l]').forEach(b => b.onclick = () => start(+b.dataset.l));
     $('back').onclick = worldSelect;
   }
 
-  /* ★★★ الإعدادات ★★★ */
   function settingsPage(){
     const v = save.settings;
     menu('⚙️ الإعدادات', `
       <div class="setting"><label>🔊 المؤثرات</label><input id="setSound" type="checkbox" ${v.sound?'checked':''}></div>
-      <div class="setting"><label>🔉 مستوى الصوت</label><input id="setVolume" type="range" min="0" max="100" value="${v.volume}"></div>
+      <div class="setting"><label>🔉 الصوت</label><input id="setVolume" type="range" min="0" max="100" value="${v.volume}"></div>
       <div class="setting"><label>✨ المؤثرات</label><select id="setParticles"><option value="low">منخفضة</option><option value="medium">متوسطة</option><option value="high">عالية</option></select></div>
       <div class="setting"><label>📳 اهتزاز</label><input id="setShake" type="checkbox" ${v.shake?'checked':''}></div>
       <div class="setting"><label>🌟 نجوم</label><input id="setStars" type="checkbox" ${v.stars?'checked':''}></div>
-      <div class="setting"><label>🕹️ حساسية اللمس</label><select id="setControls"><option value="slow">هادئة</option><option value="normal">عادية</option><option value="fast">سريعة</option></select></div>
+      <div class="setting"><label>🕹️ اللمس</label><select id="setControls"><option value="slow">هادئة</option><option value="normal">عادية</option><option value="fast">سريعة</option></select></div>
       <button class="big" id="saveSettings">💾 حفظ</button>
       <button class="big secondary" id="back">⬅ الرئيسية</button>
       <button class="big secondary" id="resetProgress">🗑️ حذف التقدم</button>
     `);
-    $('setParticles').value = v.particles;
-    $('setControls').value = v.controls;
+    $('setParticles').value = v.particles; $('setControls').value = v.controls;
     $('saveSettings').onclick = () => {
       save.settings = {
         sound:$('setSound').checked, volume:+$('setVolume').value,
@@ -509,15 +615,12 @@
       persist(); settingsPage();
     };
     $('back').onclick = main;
-    $('resetProgress').onclick = () => {
-      if (confirm('حذف كل التقدم؟')){ localStorage.removeItem('airLegendsSave'); location.reload(); }
-    };
+    $('resetProgress').onclick = () => { if (confirm('حذف كل التقدم؟')){ localStorage.removeItem('airLegendsSave'); location.reload(); } };
   }
 
-  /* ★★★ المتجر ★★★ */
   function shop(){
     let html = `<p>🪙 رصيدك: ${save.coins}</p>`;
-    const ups = [['damage','قوة الرصاص','زيادة الضرر',120],['armor','درع البداية','زيادة الحياة',150],['magnet','مغناطيس','نطاق جمع المكافآت',100]];
+    const ups = [['damage','قوة الرصاص','ضرر أعلى',120],['armor','درع البداية','حياة أكثر',150],['magnet','مغناطيس','جمع المكافآت',100]];
     for (const [k,n,d,b] of ups){
       const lv = save.upgrades[k], cost = b*(lv+1);
       html += `<div class="card"><div><b>${n} (${lv}/5)</b><small>${d}</small></div>
@@ -543,7 +646,6 @@
     });
   }
 
-  /* ★★★ المهام ★★★ */
   function tasks(){
     const m = save.missions;
     const arr = [['دمّر 50 طائرة', m.kills, 50, 100],['اهزم زعيمين', m.bosses, 2, 160],['اجمع 150 عملة', m.earned, 150, 120]];
@@ -560,7 +662,6 @@
     });
   }
 
-  /* ★★★ شريط الأسلحة ★★★ */
   function buildBar(){
     const el = $('weaponbar'); el.innerHTML = '';
     save.unlocked.sort((a,b)=>a-b).forEach(i => {
@@ -572,7 +673,6 @@
     });
   }
 
-  /* ★★★ بدء فردي ★★★ */
   function start(index = selectedLevel){
     if (index > save.progress || index < 0 || index >= 400) return;
     net.online = false;
@@ -584,12 +684,12 @@
     score = earned = kills = time = 0;
     spawn = .6; bossActive = bossDone = false;
     shake = 0; combo = 1; comboTime = 0; slow = 0; weapon = 0;
-    enemies = []; shots = []; bad = []; drops = []; particles = [];
+    enemies = []; shots = []; bad = []; drops = []; particles = []; remoteShots.length = 0;
     Object.assign(player, { x:W/2, y:H-155, tx:W/2, ty:H-155,
       maxHp:3+save.upgrades.armor, hp:3+save.upgrades.armor,
       inv:2, shield:0, power:1, fire:0, bombs:2, alive:true });
     $('overlay').classList.add('hide');
-    buildBar(); hud();
+    buildBar(); hud(); updateMicUI();
     toast('🌍 ' + WORLD_NAMES[worldIndex] + ' · المستوى ' + level);
   }
 
@@ -605,7 +705,7 @@
     $('resume').onclick = () => { state = 'play'; $('overlay').classList.add('hide'); hud(); };
     $('quit').onclick = () => {
       save.best = Math.max(save.best, score); persist();
-      if (net.online){ netSend({t:'leave'}); net.online = false; try { net.ws.close(); } catch(e){} }
+      if (net.online){ cleanupRTC(); netSend({t:'leave'}); net.online = false; try { net.ws.close(); } catch(e){} }
       main();
     };
   }
@@ -621,8 +721,7 @@
     persist();
     menu(win?'🏆 المستوى مكتمل!':'💥 انتهت المحاولة', `
       <p>🌍 ${WORLD_NAMES[worldIndex]} · المستوى ${level}/20<br>
-      النقاط: <b>${score}</b> | 🪙 ${earned}<br>
-      الطائرات: ${kills}<br>${win?'⭐ فتحت المستوى التالي!':'أعد المحاولة.'}</p>
+      النقاط: <b>${score}</b> | 🪙 ${earned}<br>الطائرات: ${kills}</p>
       <button class="big" id="again">${win && selectedLevel<399?'▶ التالي':'🔄 إعادة'}</button>
       <button class="big secondary" id="levels">🗺️ المستويات</button>
       <button class="big secondary" id="home">🏠 الرئيسية</button>
@@ -633,11 +732,7 @@
     $('home').onclick = main;
   }
 
-  function gain(n){
-    save.coins += n; earned += n;
-    save.missions.earned += n;
-    persist();
-  }
+  function gain(n){ save.coins += n; earned += n; save.missions.earned += n; persist(); }
 
   function burst(x, y, color, n=18){
     n = Math.round(n * ({low:.35, medium:1, high:1.5}[save.settings.particles]||1));
@@ -659,20 +754,33 @@
     return best;
   }
 
+  /* ★★★ الإطلاق — يبث للاعب الآخر ★★★ */
   function fire(){
     const x = player.x, y = player.y-29;
     const damage = 1 + save.upgrades.damage*.35;
     const extra = player.power - 1;
-    if (weapon === 0) for (let i = -extra; i <= extra; i++) addShot(x+i*9, y, i*34, -850, damage, 'machine');
-    if (weapon === 1) for (let i = 0; i < 1+Math.floor(extra/2); i++) addShot(x+(i-.5)*18, y, 0, -440, damage*3, 'missile', 9);
-    if (weapon === 2) addShot(x, y, 0, -1100, damage*1.4, 'laser', 11);
-    if (weapon === 4) for (let i = -1-extra; i <= 1+extra; i++) addShot(x+i*6, y, i*60, -680, damage*1.5, 'fire', 8);
+    const newBullets = [];
+
+    if (weapon === 0) for (let i = -extra; i <= extra; i++) newBullets.push({x:x+i*9, y, vx:i*34, vy:-850, dmg:damage, kind:'machine', r:5});
+    if (weapon === 1) for (let i = 0; i < 1+Math.floor(extra/2); i++) newBullets.push({x:x+(i-.5)*18, y, vx:0, vy:-440, dmg:damage*3, kind:'missile', r:9});
+    if (weapon === 2) newBullets.push({x, y, vx:0, vy:-1100, dmg:damage*1.4, kind:'laser', r:11});
+    if (weapon === 4) for (let i = -1-extra; i <= 1+extra; i++) newBullets.push({x:x+i*6, y, vx:i*60, vy:-680, dmg:damage*1.5, kind:'fire', r:8});
     if (weapon === 5){
       const n = 10 + extra*2;
       for (let i = 0; i < n; i++){
         const a = TAU*i/n;
-        addShot(x, y, Math.cos(a)*550, Math.sin(a)*550, damage, 'radial', 5);
+        newBullets.push({x, y, vx:Math.cos(a)*550, vy:Math.sin(a)*550, dmg:damage, kind:'radial', r:5});
       }
+    }
+
+    /* إضافة محلية للعرض والضرر */
+    for (const b of newBullets) addShot(b.x, b.y, b.vx, b.vy, b.dmg, b.kind, b.r);
+
+    /* بث للاعب الآخر (إن كان متصلاً) */
+    if (net.online){
+      netSend({ t:'shoot', bullets: newBullets.map(b => ({
+        x:b.x, y:b.y, vx:b.vx, vy:b.vy, kind:b.kind, r:b.r
+      })) });
     }
     tone(weapon===1?330:950, .035);
   }
@@ -759,7 +867,7 @@
   }
 
   /* =========================================================
-     ★★★ تحديث اللعبة ★★★
+     ★★★ التحديث ★★★
      ========================================================= */
   function update(dt){
     const ds = dt/1000;
@@ -773,7 +881,6 @@
     comboTime -= ds;
     if (comboTime <= 0) combo = 1;
 
-    /* حركة اللاعب */
     if (player.alive){
       const move = 380*ds;
       if (keys.ArrowLeft  || keys.KeyA) player.tx -= move;
@@ -791,9 +898,8 @@
       if (player.fire <= 0){ fire(); player.fire = [.13,.48,.13,1,.25,.55][weapon]; }
     }
 
-    /* ★★★ خاص بالجماعي ★★★ */
     if (net.online){
-      // تحرك ناعم للأعداء
+      /* تحرك ناعم للأعداء */
       for (const e of enemies){
         const k = Math.min(1, ds*14);
         e.x += (e.tx - e.x)*k;
@@ -801,30 +907,42 @@
         e.t += ds;
         if (e.flash > 0) e.flash -= ds;
       }
-      // رصاص الأعداء
+      /* رصاص الأعداء */
       for (let i = bad.length-1; i >= 0; i--){
         const b = bad[i];
         b.x += b.vx*ds; b.y += b.vy*ds;
         if (b.y > H+50 || b.y < -50 || b.x < -50 || b.x > W+50){ bad.splice(i,1); continue; }
-        if (player.alive && Math.hypot(b.x-player.x, b.y-player.y) < b.r+13){
-          bad.splice(i,1); netHurt();
-        }
+        if (player.alive && Math.hypot(b.x-player.x, b.y-player.y) < b.r+13){ bad.splice(i,1); netHurt(); }
       }
-      // تصادم مع الأجساد
+      /* تصادم مع الأجساد */
       if (player.alive) for (const e of enemies){
         if (Math.hypot(e.x-player.x, e.y-player.y) < e.r*.7 + 13) netHurt();
       }
-      // إرسال الموقع
+      /* ★ رصاص اللاعب الآخر — يتحرك محلياً ★ */
+      for (let i = remoteShots.length-1; i >= 0; i--){
+        const b = remoteShots[i];
+        b.life -= ds;
+        if (b.kind === 'missile'){
+          const t = nearest(b.x, b.y);
+          if (t){
+            const dx = t.x-b.x, dy = t.y-b.y, d = Math.hypot(dx,dy)||1;
+            b.vx += (dx/d*570 - b.vx)*Math.min(1,ds*4);
+            b.vy += (dy/d*570 - b.vy)*Math.min(1,ds*4);
+          }
+        }
+        b.x += b.vx*ds; b.y += b.vy*ds;
+        if (b.life <= 0 || b.y < -50 || b.y > H+50 || b.x < -50 || b.x > W+50) remoteShots.splice(i,1);
+      }
+      /* إرسال الموقع */
       net.sendT -= ds;
       if (net.sendT <= 0){
         net.sendT = 0.06;
         netSend({ t:'p', x:Math.round(player.x), y:Math.round(player.y) });
       }
     } else {
-      /* ---- فردي: توليد + حركة الأعداء ---- */
+      /* فردي */
       if (!bossActive && !bossDone && time >= levelDuration) boss();
       if (bossDone){ finish(true); return; }
-
       if (!bossActive){
         spawn -= ds;
         if (spawn <= 0){
@@ -832,7 +950,6 @@
           spawn = Math.max(.22, 1.12 - selectedLevel*.0021 - (level%5)*.045) * rnd(.7,1.3);
         }
       }
-
       const factor = slow > 0 ? .45 : 1;
       for (let i = enemies.length-1; i >= 0; i--){
         const e = enemies[i];
@@ -866,7 +983,6 @@
           hurt();
         }
       }
-      // رصاص الأعداء (فردي)
       for (let i = bad.length-1; i >= 0; i--){
         const b = bad[i];
         b.x += b.vx*ds*factor; b.y += b.vy*ds*factor;
@@ -875,7 +991,7 @@
       }
     }
 
-    /* ---- رصاص اللاعب (مشترك) ---- */
+    /* ★★★ رصاص اللاعب — التصادم مع الأعداء (فردي وجماعي) ★★★ */
     for (let i = shots.length-1; i >= 0; i--){
       const b = shots[i];
       b.life -= ds;
@@ -911,7 +1027,7 @@
       if (removed) continue;
     }
 
-    /* ---- القوى الساقطة ---- */
+    /* القوى الساقطة */
     for (let i = drops.length-1; i >= 0; i--){
       const a = drops[i];
       a.t += ds; a.y += 95*ds;
@@ -930,7 +1046,7 @@
       }
     }
 
-    /* ---- جزيئات ونجوم ---- */
+    /* جزيئات ونجوم */
     for (let i = particles.length-1; i >= 0; i--){
       const a = particles[i];
       a.life -= ds; a.x += a.vx*ds; a.y += a.vy*ds;
@@ -945,7 +1061,6 @@
     hud();
   }
 
-  /* ★★★ رسم الأشكال الاحتياطية ★★★ */
   function ship(x,y,size,color,enemy=false){
     ctx.save(); ctx.translate(x,y); ctx.scale(size/70, size/70);
     ctx.fillStyle = color; ctx.strokeStyle = '#e0f6ff'; ctx.lineWidth = 2;
@@ -963,6 +1078,12 @@
     ctx.restore();
   }
 
+  /* ★★★ مساعدات الصور ★★★ */
+  function ownSprite(){ return net.online && !net.host ? 'player2' : 'player'; }
+  function otherSprite(){ return net.host ? 'player2' : 'player'; }
+  function ownBulletSprite(){ return net.online && !net.host ? 'bullet2' : 'bullet'; }
+  function ownFallbackColor(){ return net.online && !net.host ? '#ff8b5a' : '#4db7ff'; }
+
   /* ★★★ الرسم ★★★ */
   function render(){
     ctx.setTransform(dpr,0,0,dpr,0,0);
@@ -978,7 +1099,6 @@
       shake *= .86;
     }
 
-    /* النجوم */
     ctx.fillStyle = '#b9e6ff';
     for (const s of (save.settings.stars ? stars : [])){
       ctx.globalAlpha = .16 + s.z*.5;
@@ -986,7 +1106,6 @@
     }
     ctx.globalAlpha = 1;
 
-    /* القوى */
     for (const a of drops){
       ctx.save(); ctx.shadowBlur = 20; ctx.shadowColor = '#fff9a0';
       const key = a.kind === 'life' ? 'life' : a.kind === 'power' ? 'power' : 'missing';
@@ -1000,7 +1119,6 @@
       ctx.restore();
     }
 
-    /* الأعداء */
     for (const e of enemies){
       const sz = e.type === 'boss' ? 172 : e.type === 'tank' ? 92 : 69;
       ctx.save();
@@ -1012,12 +1130,11 @@
       ctx.restore();
     }
 
-    /* شريط الزعيم */
     const bossEnemy = enemies.find(e => e.type === 'boss');
     $('bossBar').style.display = bossEnemy && !bossEnemy.enter ? 'block' : 'none';
     if (bossEnemy) $('bossFill').style.width = 100*Math.max(0, bossEnemy.hp/bossEnemy.max) + '%';
 
-    /* رصاص */
+    /* الرصاص */
     ctx.globalCompositeOperation = 'lighter';
     for (const b of bad){
       if (!pic('ebullet', b.x, b.y, 26, 26)){
@@ -1025,6 +1142,26 @@
         ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, TAU); ctx.fill();
       }
     }
+    /* ★ رصاص اللاعب الآخر ★ */
+    for (const b of remoteShots){
+      const rot = Math.atan2(b.vy, b.vx) + Math.PI/2;
+      ctx.shadowBlur = 12; ctx.shadowColor = '#ffd86b';
+      if (b.kind === 'laser'){
+        ctx.fillStyle = '#ffd76c';
+        ctx.fillRect(b.x-5, b.y-26, 10, 52);
+      } else if (b.kind === 'missile'){
+        ctx.fillStyle = '#ffb85c';
+        ctx.beginPath(); ctx.arc(b.x, b.y, 9, 0, TAU); ctx.fill();
+      } else if (b.kind === 'fire'){
+        ctx.fillStyle = '#ffb04d';
+        ctx.beginPath(); ctx.arc(b.x, b.y, 9, 0, TAU); ctx.fill();
+      } else if (!pic(b.sprite, b.x, b.y, 18, 38, rot)){
+        ctx.fillStyle = '#ffcf6c';
+        ctx.fillRect(b.x-3, b.y-14, 6, 27);
+      }
+    }
+    ctx.shadowBlur = 0;
+    /* ★ رصاص اللاعب المحلي ★ */
     for (const b of shots){
       ctx.shadowBlur = 12;
       ctx.shadowColor = b.kind === 'fire' ? '#ff6d22' : '#6de9ff';
@@ -1037,7 +1174,7 @@
       } else if (b.kind === 'fire'){
         ctx.fillStyle = '#ff7536';
         ctx.beginPath(); ctx.arc(b.x, b.y, 9, 0, TAU); ctx.fill();
-      } else if (!pic('bullet', b.x, b.y, 18, 38, Math.atan2(b.vy,b.vx)+Math.PI/2)){
+      } else if (!pic(ownBulletSprite(), b.x, b.y, 18, 38, Math.atan2(b.vy,b.vx)+Math.PI/2)){
         ctx.fillStyle = '#86edff';
         ctx.fillRect(b.x-3, b.y-14, 6, 27);
       }
@@ -1045,11 +1182,13 @@
     ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = 'source-over';
 
-    /* ★★★ اللاعبون الآخرون (جماعي) ★★★ */
+    /* اللاعبون الآخرون */
     if (net.online){
       for (const [id,p] of net.players){
         if (id === net.myId || !p.alive) continue;
-        if (!pic('player', p.x, p.y, 80, 80)) ship(p.x, p.y, 80, '#4db7ff');
+        if (!pic(otherSprite(), p.x, p.y, 80, 80)){
+          ship(p.x, p.y, 80, net.host ? '#ff8b5a' : '#4db7ff');
+        }
         ctx.strokeStyle = '#7cff9c'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(p.x, p.y, 42, 0, TAU); ctx.stroke();
         ctx.fillStyle = '#a6ffbe';
@@ -1061,14 +1200,13 @@
 
     /* اللاعب */
     if (player.alive && state !== 'over' && (player.inv <= 0 || Math.floor(performance.now()/90)%2)){
-      if (!pic('player', player.x, player.y, 80, 80)) ship(player.x, player.y, 80, '#4db7ff');
+      if (!pic(ownSprite(), player.x, player.y, 80, 80)) ship(player.x, player.y, 80, ownFallbackColor());
       if (player.shield > 0){
         ctx.strokeStyle = '#73eaff'; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(player.x, player.y, 43, 0, TAU); ctx.stroke();
       }
     }
 
-    /* الجزيئات */
     ctx.globalCompositeOperation = 'lighter';
     for (const a of particles){
       ctx.globalAlpha = Math.max(0, a.life/a.max);
@@ -1080,7 +1218,6 @@
     ctx.restore();
   }
 
-  /* ★★★ شاشة التحميل ★★★ */
   function renderLoading(){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     const bg = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,H*.75);
@@ -1094,19 +1231,16 @@
     }
     ctx.globalAlpha = 1;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-
     ctx.save();
     ctx.shadowColor = '#4fb8ff'; ctx.shadowBlur = 40;
     ctx.fillStyle = '#83dfff'; ctx.font = 'bold 76px system-ui, sans-serif';
     ctx.fillText('✈️', W/2, H/2-175); ctx.restore();
-
     const tg = ctx.createLinearGradient(W/2-130,0,W/2+130,0);
     tg.addColorStop(0,'#7fe4ff'); tg.addColorStop(.5,'#b58cff'); tg.addColorStop(1,'#ff7fd0');
     ctx.fillStyle = tg; ctx.font = 'bold 28px system-ui, sans-serif';
     ctx.fillText('حرب الطائرات', W/2, H/2-105);
     ctx.fillStyle = '#83dfff'; ctx.font = 'bold 18px system-ui, sans-serif';
     ctx.fillText('— الأساطير —', W/2, H/2-72);
-
     const prog = imgTotal > 0 ? imgLoadedCount/imgTotal : 0;
     const barW = 280, barH = 18, barX = W/2-barW/2, barY = H/2+40;
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
@@ -1130,42 +1264,30 @@
     if (ctx.roundRect) ctx.roundRect(barX,barY,barW,barH,9); else ctx.rect(barX,barY,barW,barH);
     ctx.stroke();
     ctx.fillStyle = '#e6f3ff'; ctx.font = 'bold 15px system-ui, sans-serif';
-    ctx.fillText('جاري تحميل الصور... ' + Math.floor(prog*100) + '%', W/2, barY+barH+32);
+    ctx.fillText('جاري التحميل... ' + Math.floor(prog*100) + '%', W/2, barY+barH+32);
     ctx.fillStyle = '#6c88a8'; ctx.font = '12px system-ui, sans-serif';
-    ctx.fillText('(' + imgLoadedCount + ' من ' + imgTotal + ' صور)', W/2, barY+barH+56);
+    ctx.fillText('(' + imgLoadedCount + '/' + imgTotal + ' صور)', W/2, barY+barH+56);
   }
 
-  /* ★★★ الحلقة الرئيسية ★★★ */
   let last = 0, mainShown = false;
   function loop(ts){
     requestAnimationFrame(loop);
     if (!allImgsReady){ last = ts; renderLoading(); return; }
     if (!mainShown){ mainShown = true; main(); }
-
     let dt = Math.min(40, ts - (last||ts));
     last = ts;
-
     if (state === 'play') update(dt);
     else for (const s of stars){ s.y += s.z*.35; if (s.y > H) s.y = 0; }
-
     render();
-
-    /* ping */
-    if (net.online && ts - (net.lastPing||0) > 2000){
-      net.lastPing = ts;
-      netSend({ t:'ping' });
-    }
   }
 
-  /* ★★★ الإدخال ★★★ */
+  /* الإدخال */
   let dragging = false, sx = 0, sy = 0, px = 0, py = 0;
   const keys = {};
-
   function point(e){
     const r = cv.getBoundingClientRect();
     return { x: (e.clientX-r.left)/r.width*W, y: (e.clientY-r.top)/r.height*H };
   }
-
   cv.onpointerdown = e => {
     if (state !== 'play') return;
     dragging = true;
@@ -1187,6 +1309,7 @@
     if (['Space','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) e.preventDefault();
     if ((e.code === 'KeyP' || e.code === 'Escape') && state === 'play') pause();
     if (e.code === 'Space' && state === 'play') bomb();
+    if (e.code === 'KeyM') toggleMic();
     if (/^Digit[1-6]$/.test(e.code)){
       const i = +e.code.slice(-1)-1;
       if (save.unlocked.includes(i)){ weapon = i; buildBar(); }
@@ -1196,6 +1319,7 @@
 
   $('pause').onclick = pause;
   $('sound').onclick = () => { sound = !sound; $('sound').textContent = sound ? '🔊' : '🔇'; };
+  $('micBtn').onclick = toggleMic;
   $('bombBtn').onclick = bomb;
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && state === 'play' && !net.online) pause();
@@ -1206,4 +1330,4 @@
 })();
 </script>
 </body>
-  </html>
+</html>
