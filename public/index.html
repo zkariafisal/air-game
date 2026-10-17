@@ -3,15 +3,137 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#070f23">
-<title>حرب الطائرات — الأساطير (جماعي)</title>
+<meta name="theme-color" content="#030815">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="screen-orientation" content="portrait">
+<link rel="manifest" href="manifest.json">
+<title>حرب الطائرات — الأساطير</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden;background:#030815;color:white;font-family:system-ui,Tahoma,sans-serif;touch-action:none;user-select:none}#stage{position:absolute;overflow:hidden;left:50%;top:50%;transform:translate(-50%,-50%);background:#071328;box-shadow:0 0 35px #1250a155}canvas{display:block;width:100%;height:100%}#hud{position:absolute;inset:0 0 auto;padding:8px;pointer-events:none;display:flex;align-items:flex-start;justify-content:space-between;gap:4px;font-size:12px;font-weight:800}#hud .col{display:grid;gap:5px}.pill{background:#061429d9;border:1px solid #6ccaff55;border-radius:11px;padding:5px 8px;white-space:nowrap;backdrop-filter:blur(5px)}button{font-family:inherit;cursor:pointer;border:0;color:white;font-weight:800}#hud button{pointer-events:auto;background:#132b51dd;border:1px solid #4bbaff77;border-radius:10px;padding:7px;font-size:17px}#weaponbar{position:absolute;bottom:12px;left:8px;right:8px;display:flex;justify-content:center;gap:5px;pointer-events:auto}#weaponbar button{min-width:41px;flex:1;max-width:65px;padding:7px 2px;background:#0b193ad9;border:1px solid #3c6a9e;border-radius:11px;font-size:17px}#weaponbar button.sel{border-color:#ffdb62;background:#745015dd;box-shadow:0 0 14px #ffc33c66}#bombBtn{position:absolute;bottom:76px;right:13px;padding:12px;background:#9d313cdd;border:1px solid #ff9999;border-radius:50%;font-size:21px;display:none}#overlay{position:absolute;inset:0;background:#030b1be8;display:flex;justify-content:center;align-items:center;overflow:auto;padding:16px;backdrop-filter:blur(5px)}#overlay.hide{display:none}.panel{width:100%;max-width:430px;max-height:95%;overflow:auto;text-align:center;background:linear-gradient(145deg,#102449,#080f25);border:1px solid #5d9bda77;border-radius:22px;padding:17px;box-shadow:0 10px 50px #0009}.panel h1{font-size:26px;color:#83dfff;margin:6px 0 12px}.panel p{font-size:13px;line-height:1.8;color:#b7cce5}.big{padding:12px 20px;border-radius:13px;background:linear-gradient(100deg,#12a9d6,#6266e8);margin:5px;font-size:15px}.secondary{background:#263f6b}.tabs{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}.tabs button{padding:9px;border-radius:10px;background:#28446d}.card{display:flex;justify-content:space-between;align-items:center;text-align:right;gap:8px;background:#152b4c;border:1px solid #33547d;border-radius:12px;padding:9px;margin:7px 0;font-size:12px}.card small{color:#a8c0db;display:block;margin-top:3px}.card button{background:#137eaa;border-radius:9px;padding:9px;min-width:86px}.card button:disabled{opacity:.5}.tiny{font-size:11px;color:#9bb8d6}.notice{color:#ffe28a!important}#toast{position:absolute;top:110px;left:15%;width:70%;text-align:center;font-weight:900;color:#ffe282;text-shadow:0 2px 8px black;pointer-events:none;opacity:0;transition:opacity .2s}#bossBar{position:absolute;top:72px;left:12%;width:76%;height:11px;border-radius:9px;background:#2b1223;display:none;overflow:hidden;border:1px solid #fff5}#bossFill{height:100%;background:linear-gradient(90deg,#ff445d,#ffcc65);width:100%}
-.levelgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}.levelgrid button{min-height:53px;border-radius:11px;background:#183960;border:1px solid #4b7aa0;font-size:14px}.levelgrid button.locked{opacity:.4;background:#101b31}.levelgrid button.done{background:#205b4b;border-color:#58e8b4}.levelgrid button.current{background:#785426;border-color:#ffcf65}.worldgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.worldgrid button{border-radius:12px;padding:12px 5px;min-height:65px;background:#183455;border:1px solid #4d779a}.worldgrid button:disabled{opacity:.45}.setting{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:right;background:#162d4e;border-radius:12px;padding:12px;margin:9px 0}.setting select,.setting input{max-width:135px;accent-color:#5dd6ff}.setting select{background:#091c36;color:white;padding:7px;border-radius:8px}.progress{height:9px;background:#12233a;border-radius:9px;overflow:hidden;margin:8px 0}.progress>div{height:100%;background:linear-gradient(90deg,#26b5db,#ffc65d)}
-.roomcode{font-size:34px;letter-spacing:10px;color:#ffd76c;font-weight:900;text-shadow:0 0 20px #ffc94d99;margin:8px 0}
-.badge{display:inline-block;background:#2a7a4f;color:#c9ffd9;padding:3px 9px;border-radius:20px;font-size:11px;margin:0 4px}
-.pill.net{border-color:#6dff9d55;color:#9dffb7}
-#micBtn.on{background:#1d8348!important;border-color:#4bff7c!important;box-shadow:0 0 12px #4bff7c99}
+:root{
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --neon-blue: #00e5ff;
+  --neon-red: #ff3366;
+  --neon-gold: #ffbe0b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;height:100%;overflow:hidden;
+  background:#02050f;color:#fff;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  touch-action:none;user-select:none;
+}
+#stage{
+  position:absolute;overflow:hidden;
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  background:#04091a;
+  box-shadow:0 0 50px rgba(0,229,255,0.15);
+}
+canvas{display:block;width:100%;height:100%}
+
+/* HUD & UI - Glassmorphism */
+#hud{
+  position:absolute;inset:0 0 auto;
+  padding:calc(var(--safe-top) + 10px) 12px 10px;
+  pointer-events:none;display:flex;
+  align-items:flex-start;justify-content:space-between;
+  gap:6px;font-size:12px;font-weight:900;
+  z-index:10;
+}
+#hud .col{display:grid;gap:6px}
+.pill{
+  background:rgba(8,20,44,0.72);
+  border:1px solid rgba(0,229,255,0.3);
+  border-radius:14px;
+  padding:6px 10px;white-space:nowrap;
+  backdrop-filter:blur(8px);
+  box-shadow:0 4px 15px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,229,255,0.1);
+  letter-spacing:.3px;
+}
+button{
+  font-family:inherit;cursor:pointer;border:0;color:white;font-weight:800;
+  transition:transform .12s ease, filter .12s ease;
+}
+button:active{transform:scale(0.92);filter:brightness(1.2)}
+#hud button{
+  pointer-events:auto;
+  background:linear-gradient(135deg, rgba(19,43,81,0.85), rgba(12,24,48,0.85));
+  border:1px solid rgba(0,229,255,0.4);
+  border-radius:12px;padding:8px 10px;font-size:17px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+}
+#weaponbar{
+  position:absolute;bottom:calc(var(--safe-bottom) + 12px);left:10px;right:10px;
+  display:flex;justify-content:center;gap:6px;pointer-events:auto;z-index:10;
+}
+#weaponbar button{
+  min-width:44px;flex:1;max-width:68px;padding:8px 2px;
+  background:rgba(10,24,54,0.75);
+  border:1px solid rgba(75,186,255,0.3);
+  border-radius:14px;font-size:18px;backdrop-filter:blur(6px);
+}
+#weaponbar button.sel{
+  border-color:var(--neon-gold);
+  background:linear-gradient(180deg, rgba(255,190,11,0.3), rgba(140,80,10,0.6));
+  box-shadow:0 0 16px rgba(255,190,11,0.45);
+}
+#bombBtn{
+  position:absolute;bottom:calc(var(--safe-bottom) + 80px);right:16px;
+  width:58px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #ff4b68, #961228);
+  border:2px solid #ff99aa;
+  box-shadow:0 0 20px rgba(255,75,104,0.6);
+  font-size:24px;display:none;z-index:10;
+}
+#overlay{
+  position:absolute;inset:0;background:rgba(3,8,20,0.85);
+  display:flex;justify-content:center;align-items:center;
+  overflow:auto;padding:16px;backdrop-filter:blur(10px);z-index:30;
+}
+#overlay.hide{display:none}
+.panel{
+  width:100%;max-width:420px;max-height:92%;overflow:auto;text-align:center;
+  background:linear-gradient(155deg, rgba(16,36,73,0.92), rgba(6,12,28,0.95));
+  border:1px solid rgba(0,229,255,0.35);border-radius:24px;padding:20px;
+  box-shadow:0 15px 60px rgba(0,0,0,0.8), 0 0 25px rgba(0,229,255,0.12);
+}
+.panel h1{font-size:26px;color:#a3edff;margin:4px 0 14px;text-shadow:0 0 15px rgba(0,229,255,0.4)}
+.panel p{font-size:13.5px;line-height:1.75;color:#c1d5ed}
+.big{
+  width:92%;padding:13px 20px;border-radius:15px;
+  background:linear-gradient(100deg,#00c3ff,#6943ff);
+  margin:7px auto;font-size:15px;box-shadow:0 4px 18px rgba(0,195,255,0.35);
+  display:block;
+}
+.secondary{background:rgba(35,58,97,0.8);box-shadow:none;border:1px solid rgba(255,255,255,0.1)}
+.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.tabs button{padding:10px 14px;border-radius:12px;background:rgba(25,50,88,0.8);border:1px solid rgba(0,229,255,0.2)}
+.card{
+  display:flex;justify-content:space-between;align-items:center;text-align:right;gap:8px;
+  background:rgba(18,37,68,0.7);border:1px solid rgba(75,186,255,0.25);
+  border-radius:14px;padding:10px 12px;margin:8px 0;font-size:12.5px;
+}
+.card button{background:linear-gradient(100deg,#00a8e8,#007ea7);border-radius:10px;padding:9px 12px;min-width:85px}
+.tiny{font-size:11.5px;color:#9bb8d6}
+.notice{color:#ffd56b!important}
+#toast{
+  position:absolute;top:115px;left:10%;width:80%;text-align:center;
+  font-weight:900;color:#ffdf79;text-shadow:0 2px 10px rgba(0,0,0,0.9), 0 0 12px rgba(255,223,121,0.5);
+  pointer-events:none;opacity:0;transition:opacity .25s ease;z-index:20;font-size:15px;
+}
+#bossBar{
+  position:absolute;top:76px;left:10%;width:80%;height:14px;
+  border-radius:10px;background:rgba(20,5,15,0.85);display:none;
+  overflow:hidden;border:1.5px solid rgba(255,80,100,0.6);
+  box-shadow:0 0 15px rgba(255,50,80,0.4);z-index:15;
+}
+#bossFill{height:100%;background:linear-gradient(90deg,#ff2a55,#ffb703);width:100%;transition:width .1s}
+.roomcode{font-size:36px;letter-spacing:10px;color:#ffbe0b;font-weight:900;text-shadow:0 0 25px rgba(255,190,11,0.6);margin:10px 0}
+.badge{display:inline-block;background:#15803d;color:#dcfce7;padding:3px 9px;border-radius:20px;font-size:11px}
+.pill.net{border-color:rgba(74,222,128,0.4);color:#86efac}
+#micBtn.on{background:#16a34a!important;border-color:#4ade80!important;box-shadow:0 0 16px rgba(74,222,128,0.7)}
 #remoteAudio{display:none}
 </style>
 </head>
@@ -54,9 +176,14 @@
 (() => {
   'use strict';
 
+  /* تسجيل Service Worker للتثبيت كأندرويد أصيل */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+
   const W = 480, H = 854, TAU = Math.PI * 2;
   const $ = id => document.getElementById(id);
-  const cv = $('game'), ctx = cv.getContext('2d'), stage = $('stage');
+  const cv = $('game'), ctx = cv.getContext('2d', { alpha: false }), stage = $('stage');
   const rnd = (a,b) => a + Math.random()*(b-a);
   const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 
@@ -65,22 +192,31 @@
     let s = Math.min(innerWidth/W, innerHeight/H);
     stage.style.width = W*s+'px';
     stage.style.height = H*s+'px';
-    dpr = Math.min(devicePixelRatio||1, 2);
+    dpr = Math.min(devicePixelRatio || 1, 2.5);
     cv.width = W*dpr; cv.height = H*dpr;
     ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
   }
   addEventListener('resize', resize); resize();
+
+  /* =========================================================
+     نظام الاهتزاز الفيزيائي للأندرويد (Haptic Feedback)
+     ========================================================= */
+  function vibrate(ms=30){
+    if ('vibrate' in navigator && save?.settings?.shake) {
+      try { navigator.vibrate(ms); } catch(e){}
+    }
+  }
 
   /* =========================================================
      الصور
      ========================================================= */
   const files = {
-    player:'player.png',
-    player2:'player2.png',
+    player:'player.png', player2:'player2.png',
     grunt:'enemy_grunt.png', zig:'enemy_zig.png',
     tank:'enemy_tank.png', boss:'boss.png',
-    bullet:'bullet.png',
-    bullet2:'bullet2.png',
+    bullet:'bullet.png', bullet2:'bullet2.png',
     ebullet:'ebullet.png', life:'powerup_life.png',
     power:'powerup_power.png', background:'background.png'
   };
@@ -110,15 +246,24 @@
      الأسلحة والعوالم
      ========================================================= */
   const WEAP = [
-    ['🔫','رشاش','machine','رصاص متواصل سريع'],
-    ['🚀','صواريخ','missile','صواريخ تتبع'],
-    ['⚡','ليزر','laser','شعاع يخترق'],
-    ['💣','قنابل','bomb','قنبلة شاملة'],
-    ['🔥','ناري','fire','طلقات نارية'],
-    ['🌪️','دائري','radial','رصاص دائري']
+    ['🔫','رشاش البلازما','machine','طلقات مزدوجة متسارعة'],
+    ['🚀','صواريخ التتبع','missile','صواريخ موجهة مدمرة'],
+    ['⚡','شعاع الليزر','laser','ليزر فوتوني خارق للأعداء'],
+    ['💣','القنابل النووية','bomb','مسح شامل لشاشة المعركة'],
+    ['🔥','القاذف الناري','fire','موجات حرارية ذات ضرر مستمر'],
+    ['🌪️','الدرع الدائري','radial','حلقة هجومية محيطية']
   ];
-  const WORLD_NAMES = ['سماء المدينة','الصحراء الحربية','المحيط','الجبال الثلجية','الغابة','المدينة المدمرة','المنطقة البركانية','الفضاء','قاعدة الأعداء','العاصفة الرعدية','سماء الغروب','الجزر الطائرة','ممر النيازك','أعماق المحيط','الصحراء الليلية','العالم الجليدي','المجرة البنفسجية','حصن الحديد','بوابة الظلال','المعركة النهائية'];
-  const WORLD_PALETTE = [['#07162d','#194d85'],['#281b2d','#c18a43'],['#061b3b','#087eaa'],['#13283f','#9ad0e6'],['#071f19','#28644a'],['#281c23','#7e5047'],['#250b17','#b84324'],['#07051c','#241057'],['#101b2a','#526879'],['#230b2c','#6d1a4c']];
+  const WORLD_NAMES = [
+    'سماء العاصمة','الصحراء الحربية','المحيط المظلم','الجبال الثلجية','الغابة الكونية',
+    'المدينة المدمرة','المنطقة البركانية','حزام الكويكبات','قاعدة السايبر','العاصفة النجمية',
+    'سماء الشفق','الجزر العائمة','ممر النيازك','أعماق الماغما','الصحراء النيونية',
+    'القلب الجليدي','المجرة الأرجوانية','حصن الحديد','بوابة الظلال','المعركة النهائية'
+  ];
+  const WORLD_PALETTE = [
+    ['#040a18','#0a2347'],['#1e1022','#784318'],['#03142c','#064975'],['#0c1b30','#3a708c'],
+    ['#041a14','#164c39'],['#1c1017','#5c352d'],['#1c060e','#852711'],['#050414','#2a0e52'],
+    ['#0a1420','#2d445b'],['#1a0624','#54143a']
+  ];
   const WORLD_THEMES = Array.from({length:20},(_,i)=>{
     const b = WORLD_PALETTE[i % WORLD_PALETTE.length];
     return [WORLD_NAMES[i], b[0], b[1]];
@@ -129,23 +274,23 @@
      الحفظ
      ========================================================= */
   let save = {
-    coins:0, best:0, unlocked:[0], playerName:'لاعب',
+    coins:0, best:0, unlocked:[0], playerName:'كابتن',
     upgrades:{damage:0, armor:0, magnet:0},
-    missions:{date:today(), kills:0, bosses:0, earned:0, claimed:[false,false,false]}
+    missions:{date:today(), kills:0, bosses:0, earned:0, claimed:[false,false,false]},
+    progress:0, settings:{sound:true, volume:75, particles:'high', shake:true, stars:true, controls:'normal'}
   };
   try {
     const old = JSON.parse(localStorage.getItem('airLegendsSave')||'null');
     if (old) save = {...save, ...old,
       upgrades:{...save.upgrades, ...old.upgrades},
-      missions:{...save.missions, ...old.missions}};
+      missions:{...save.missions, ...old.missions},
+      settings:{...save.settings, ...(old.settings||{})}};
   } catch(e){}
   if (save.missions.date !== today()) save.missions = {date:today(),kills:0,bosses:0,earned:0,claimed:[false,false,false]};
   const persist = () => { try { localStorage.setItem('airLegendsSave', JSON.stringify(save)); } catch(e){} };
-  save.progress = Math.max(0, Math.min(400, Number(save.progress)||0));
-  save.settings = {sound:true, volume:65, particles:'medium', shake:true, stars:true, controls:'normal', ...(save.settings||{})};
 
   /* =========================================================
-     حالة اللعبة
+     حالة اللعبة والمؤثرات
      ========================================================= */
   let selectedLevel = Math.min(399, save.progress);
   let level = 1, worldIndex = 0, levelDuration = 28;
@@ -156,22 +301,27 @@
   let sound = save.settings.sound;
   let audio = null;
 
-  let enemies = [], shots = [], bad = [], drops = [], particles = [];
+  let enemies = [], shots = [], bad = [], drops = [], particles = [], shockwaves = [];
   const remoteShots = [];
-  /* ★ تقليل عدد النجوم على الأجهزة الضعيفة */
-  const starCount = (navigator.hardwareConcurrency || 4) > 4 ? 90 : 50;
-  const stars = Array.from({length:starCount},()=>({x:rnd(0,W),y:rnd(0,H),z:rnd(.3,1.4)}));
 
-  const player = {x:W/2,y:H-155,tx:W/2,ty:H-155,hp:3,maxHp:3,inv:0,shield:0,power:1,fire:0,bombs:2,alive:true};
+  /* خلفية النجوم متعددة الطبقات (Parallax Layers) */
+  const starLayers = [
+    Array.from({length:35}, () => ({x:rnd(0,W), y:rnd(0,H), s:rnd(0.6,1.2), v:45, a:rnd(0.2,0.5)})),
+    Array.from({length:35}, () => ({x:rnd(0,W), y:rnd(0,H), s:rnd(1.4,2.2), v:95, a:rnd(0.5,0.8)})),
+    Array.from({length:20}, () => ({x:rnd(0,W), y:rnd(0,H), s:rnd(2.5,3.6), v:160, a:1.0}))
+  ];
+
+  const player = {
+    x:W/2, y:H-160, tx:W/2, ty:H-160,
+    hp:3, maxHp:3, inv:0, shield:0, power:1, fire:0, bombs:2, alive:true
+  };
 
   /* =========================================================
-     ★★★ الشبكة ★★★
+     الشبكة والمزامنة
      ========================================================= */
   const net = {
     ws: null, connected: false, roomCode: '', myId: '', hostId: '', host: false,
-    players: new Map(), online: false, sendT: 0,
-    pendingBullets: [],          /* ★ طلقات مجمّعة للإرسال */
-    lastHurtSent: 0
+    players: new Map(), online: false, sendT: 0, pendingBullets: [], lastHurtSent: 0
   };
 
   function netConnect(cb){
@@ -185,9 +335,9 @@
     net.ws.onopen = () => { net.connected = true; cb && cb(); };
     net.ws.onclose = () => {
       net.connected = false;
-      if (net.online){ net.online = false; cleanupRTC(); toast('⚠️ انقطع الاتصال'); main(); }
+      if (net.online){ net.online = false; cleanupRTC(); toast('⚠️ انقطع الاتصال بالخادم'); main(); }
     };
-    net.ws.onerror = () => toast('❌ تعذّر الاتصال بالخادم');
+    net.ws.onerror = () => toast('❌ تعذر الاتصال بالسيرفر');
     net.ws.onmessage = e => { try { handleNet(JSON.parse(e.data)); } catch(err){} };
   }
   function netSend(o){ if (net.ws && net.ws.readyState === 1) net.ws.send(JSON.stringify(o)); }
@@ -196,27 +346,24 @@
     switch(m.t){
       case 'joined':
         net.roomCode = m.code; net.myId = m.id; net.hostId = m.hostId;
-        net.host = m.hostId === m.id;
-        net.players = new Map();
+        net.host = m.hostId === m.id; net.players = new Map();
         m.players.forEach(p => net.players.set(p.id, p));
         updateMicUI(); lobbyScreen(); break;
       case 'lobby':
         net.players = new Map();
         m.players.forEach(p => net.players.set(p.id, p));
-        net.hostId = m.host;
-        net.host = m.host === net.myId;
-        if (state === 'lobby') lobbyScreen();
-        break;
+        net.hostId = m.host; net.host = m.host === net.myId;
+        if (state === 'lobby') lobbyScreen(); break;
       case 'start': startOnline(m.levelIndex); break;
       case 'S': applySnapshot(m); break;
       case 'shoot': onRemoteShoot(m); break;
       case 'kill': onKill(m.id); break;
       case 'hp': onHpMsg(m); break;
-      case 'boss': bossActive = true; toast('⚠️ ظهر الزعيم!'); break;
+      case 'boss': bossActive = true; toast('⚠️ استعد.. الزعيم يهاجم!'); break;
       case 'over': finishOnline(!!m.win); break;
       case 'left':
         net.players.delete(m.id);
-        if (state === 'play' || state === 'lobby') toast('🚪 غادر أحد اللاعبين');
+        if (state === 'play' || state === 'lobby') toast('🚪 غادر أحد الحلفاء');
         cleanupRTC(); break;
       case 'err': toast(m.msg); break;
       case 'rtc-desc': handleRTCDesc(m); break;
@@ -256,7 +403,7 @@
       if (me.alive !== player.alive){
         player.alive = me.alive;
         if (me.alive){ player.inv = 2; toast('✨ عدت للمعركة!'); }
-        else toast('💀 ستعود بعد 6 ثوانٍ...');
+        else toast('💀 ستعود خلال 6 ثوانٍ...');
       }
     }
   }
@@ -266,14 +413,13 @@
     for (const b of m.bullets){
       remoteShots.push({ ...b, owner: m.owner, sprite, life: 2.5 });
     }
-    /* حد أمان للذاكرة */
     if (remoteShots.length > 300) remoteShots.splice(0, remoteShots.length - 300);
   }
 
   function onHpMsg(m){
     if (m.id === net.myId){
       player.hp = m.hp; player.alive = m.alive;
-      if (!m.alive) toast('💀 ستعود بعد 6 ثوانٍ...');
+      if (!m.alive) toast('💀 ستعود خلال 6 ثوانٍ...');
     }
   }
 
@@ -282,11 +428,17 @@
     if (i < 0) return;
     const e = enemies[i]; enemies.splice(i,1);
     combo = Math.min(9, combo+1); comboTime = 3;
-    shake = Math.max(shake, e.type==='boss'?15:4);
-    burst(e.x, e.y, e.type==='boss'?'#ffcb62':'#ff7d53', e.type==='boss'?60:18);
-    if (e.type === 'boss'){ bossActive = false; bossDone = true; gain(100+world*20); toast('🏆 هزم الفريق الزعيم!'); }
-    else { kills++; score += e.score*combo; gain(2+world); }
-    if (Math.random() < .12) drops.push({x:e.x, y:e.y, kind:['power','life','shield','slow','bomb'][Math.floor(rnd(0,5))], t:0});
+    shake = Math.max(shake, e.type==='boss'?20:6);
+    vibrate(e.type==='boss'?90:35);
+    addShockwave(e.x, e.y, e.type==='boss'?80:35, '#00e5ff');
+    burst(e.x, e.y, e.type==='boss'?'#ffbe0b':'#ff3366', e.type==='boss'?70:22);
+    if (e.type === 'boss'){
+      bossActive = false; bossDone = true; gain(100+world*20);
+      toast('🏆 هزم الفريق زعيم المرحلة!');
+    } else {
+      kills++; score += e.score*combo; gain(2+world);
+    }
+    if (Math.random() < .14) drops.push({x:e.x, y:e.y, kind:['power','life','shield','slow','bomb'][Math.floor(rnd(0,5))], t:0});
     persist();
   }
 
@@ -295,70 +447,55 @@
     const now = Date.now();
     if (now - net.lastHurtSent < 600) return;
     net.lastHurtSent = now;
-    player.inv = 1.0;
+    player.inv = 1.2;
     netSend({ t:'hurt' });
-    tone(160, .3); shake = 11;
-    burst(player.x, player.y, '#8feaff', 22);
+    tone(140, .35); shake = 14; vibrate(60);
+    burst(player.x, player.y, '#00e5ff', 30);
   }
 
   /* =========================================================
-     الصوت
+     نظام الصوت التوليدي الخفيف
      ========================================================= */
   function tone(f=440, d=.08){
     if (!sound) return;
     try {
       audio ??= new (window.AudioContext||window.webkitAudioContext)();
-      audio.resume();
+      if (audio.state === 'suspended') audio.resume();
       const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
-      o.type='triangle';
-      o.frequency.setValueAtTime(f,t);
-      o.frequency.exponentialRampToValueAtTime(Math.max(40,f*.4), t+d);
-      g.gain.setValueAtTime(.035*save.settings.volume/100, t);
-      g.gain.exponentialRampToValueAtTime(.0001, t+d);
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(f, t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f*0.3), t+d);
+      g.gain.setValueAtTime(0.04 * (save.settings.volume/100), t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+d);
       o.connect(g); g.connect(audio.destination);
       o.start(t); o.stop(t+d);
     } catch(e){}
   }
 
   /* =========================================================
-     ★★★ WebRTC — دردشة صوتية (مع TURN لليمن) ★★★
+     صوت WebRTC عبر TURN
      ========================================================= */
   let peerConn = null, localStream = null, micOn = false;
   let makingOffer = false, ignoreOffer = false, isSettingRemoteAnswerPending = false;
   const polite = () => !net.host;
-  const remoteAudio = document.getElementById('remoteAudio');
+  const remoteAudio = $('remoteAudio');
 
-  /* ★ بيانات TURN — احصل على بياناتك الخاصة من metered.ca لضمان الاستقرار
-     البيانات هنا تجريبية عامة وقد تتوقف عن العمل. المسار الأساسي: turns:443 */
   const ICE_SERVERS = [
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'turn:standard.relay.metered.ca:80',
-      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' },
-    { urls: 'turn:standard.relay.metered.ca:80?transport=tcp',
-      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' },
-    { urls: 'turn:standard.relay.metered.ca:443',
-      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' },
-    /* ★ الأهم لليمن: TURN عبر TLS على 443 يشبه HTTPS */
-    { urls: 'turns:standard.relay.metered.ca:443?transport=tcp',
-      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' }
+    { urls: 'turn:standard.relay.metered.ca:80', username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' },
+    { urls: 'turns:standard.relay.metered.ca:443?transport=tcp', username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' }
   ];
 
   function ensurePC(){
     if (peerConn) return;
-    peerConn = new RTCPeerConnection({
-      iceServers: ICE_SERVERS,
-      iceTransportPolicy: 'all',
-      bundlePolicy: 'max-bundle'
-    });
-
+    peerConn = new RTCPeerConnection({ iceServers: ICE_SERVERS });
     peerConn.onicecandidate = ({ candidate }) => {
       if (candidate) netSend({ t:'rtc-ice', cand: candidate });
     };
     peerConn.ontrack = ({ streams: [stream] }) => {
       remoteAudio.srcObject = stream;
       remoteAudio.play().catch(()=>{});
-      toast('🔊 متصل صوتياً');
+      toast('🔊 الصوت متصل مباشرة');
     };
     peerConn.onnegotiationneeded = async () => {
       try {
@@ -368,38 +505,17 @@
       } catch (e) { console.error(e); }
       finally { makingOffer = false; }
     };
-    peerConn.onconnectionstatechange = async () => {
-      const s = peerConn.connectionState;
-      if (s === 'connected') {
-        try {
-          const stats = await peerConn.getStats();
-          let usedRelay = false;
-          stats.forEach(r => {
-            if (r.type === 'candidate-pair' && r.state === 'succeeded') {
-              const local = stats.get(r.localCandidateId);
-              if (local && local.candidateType === 'relay') usedRelay = true;
-            }
-          });
-          toast(usedRelay ? '🎤 الصوت متصل عبر TURN (يعمل في اليمن)' : '🎤 الصوت متصل مباشرة');
-        } catch(_) { toast('🎤 الصوت متصل'); }
-      }
-      if (s === 'failed') toast('⚠️ فشل الاتصال الصوتي — أعد المحاولة');
-    };
   }
 
   async function handleRTCDesc(m){
     ensurePC();
-    const readyForOffer = !makingOffer &&
-      (peerConn.signalingState === 'stable' || isSettingRemoteAnswerPending);
+    const readyForOffer = !makingOffer && (peerConn.signalingState === 'stable' || isSettingRemoteAnswerPending);
     const offerCollision = m.desc.type === 'offer' && !readyForOffer;
-
     ignoreOffer = !polite() && offerCollision;
     if (ignoreOffer) return;
-
     isSettingRemoteAnswerPending = m.desc.type === 'answer';
     await peerConn.setRemoteDescription(m.desc);
     isSettingRemoteAnswerPending = false;
-
     if (m.desc.type === 'offer'){
       await peerConn.setLocalDescription();
       netSend({ t:'rtc-desc', desc: peerConn.localDescription });
@@ -408,22 +524,15 @@
 
   async function handleRTCIce(m){
     if (!peerConn) return;
-    try { await peerConn.addIceCandidate(m.cand); }
-    catch (e) { if (!ignoreOffer) console.warn(e); }
+    try { await peerConn.addIceCandidate(m.cand); } catch(e){}
   }
 
   async function toggleMic(){
     if (micOn){
       micOn = false;
-      if (localStream){
-        localStream.getTracks().forEach(t => t.stop());
-        localStream = null;
-      }
-      if (peerConn){
-        peerConn.getSenders().forEach(s => { if (s.track) peerConn.removeTrack(s); });
-      }
-      updateMicUI();
-      return;
+      if (localStream){ localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+      if (peerConn){ peerConn.getSenders().forEach(s => { if (s.track) peerConn.removeTrack(s); }); }
+      updateMicUI(); return;
     }
     try {
       micOn = true; updateMicUI();
@@ -432,9 +541,9 @@
       });
       ensurePC();
       for (const t of localStream.getTracks()) peerConn.addTrack(t, localStream);
-      toast('🎤 الميكروفون مفتوح');
-    } catch (err){
-      toast('❌ فشل المايك: ' + err.message);
+      toast('🎙️ تم تشغيل الميكروفون');
+    } catch(err){
+      toast('❌ الميكروفون غير متاح');
       micOn = false; updateMicUI();
     }
   }
@@ -453,21 +562,18 @@
     btn.style.display = net.online ? 'block' : 'none';
     btn.classList.toggle('on', micOn);
     btn.textContent = micOn ? '🎙️' : '🎤';
-    btn.title = micOn ? 'إيقاف الميكروفون' : 'تشغيل الميكروفون';
   }
 
   /* =========================================================
-     ★★★ HUD (مع كاش لتقليل إعادة الرسم) ★★★
+     واجهة المستخدم HUD
      ========================================================= */
   const hudCache = {};
   function setText(id, val){
     if (hudCache[id] === val) return;
     hudCache[id] = val;
-    const el = $(id);
-    if (el) el.textContent = val;
+    const el = $(id); if (el) el.textContent = val;
   }
-
-  function toast(s){ $('toast').textContent = s; $('toast').style.opacity = 1; toastTime = 2; }
+  function toast(s){ $('toast').textContent = s; $('toast').style.opacity = 1; toastTime = 2.4; }
 
   function hud(){
     setText('score', score);
@@ -498,11 +604,13 @@
     $('sound').textContent = sound ? '🔊' : '🔇';
     updateMicUI();
     menu('✈️ حرب الطائرات: الأساطير', `
-      <p>🏆 20 عالماً × 20 مستوى = <b>400 مستوى</b></p>
-      <p>⭐ التقدم: ${Math.min(400,save.progress)}/400 | 🪙 ${save.coins} | 🏆 ${save.best}</p>
-      <div class="progress"><div style="width:${save.progress/4}%"></div></div>
-      <button class="big" id="continue">▶ ${save.progress>=400?'إعادة المرحلة الأخيرة':'متابعة المستوى '+(Math.min(399,save.progress)%20+1)}</button>
-      <button class="big" style="background:linear-gradient(100deg,#27b56a,#4fd8a1)" id="onlineBtn">🌐 اللعب الجماعي + 🎙️ صوت</button>
+      <p>🚀 20 عالماً × 20 مستوى = <b>400 مستوى</b> ملحمي</p>
+      <p>التقدم: <b>${Math.min(400,save.progress)}/400</b> | 🪙 ${save.coins} | 🏆 ${save.best}</p>
+      <div style="height:10px;background:#0d1d36;border-radius:10px;overflow:hidden;margin:10px 0;border:1px solid rgba(0,229,255,0.3)">
+        <div style="height:100%;background:linear-gradient(90deg,#00e5ff,#ffbe0b);width:${(save.progress/400)*100}%"></div>
+      </div>
+      <button class="big" id="continue">▶ ${save.progress>=400?'إعادة الجولة الأخيرة':'متابعة المستوى '+(Math.min(399,save.progress)%20+1)}</button>
+      <button class="big" style="background:linear-gradient(100deg,#10b981,#059669)" id="onlineBtn">🌐 اللعب الجماعي أونلاين + 🎙️</button>
       <div class="tabs">
         <button id="worlds">🗺️ المراحل</button>
         <button id="shop">🛒 المتجر</button>
@@ -519,30 +627,28 @@
   }
 
   function onlineMenu(){
-    menu('🌐 اللعب الجماعي + 🎙️', `
-      <p>العب أنت وصديقك معاً بصوت حي. أنشئ غرفة وشارك الرمز، أو انضم برمز صديقك.</p>
-      <p class="tiny">🛩️ المضيف: طائرة زرقاء · الضيف: طائرة ثانية خاصة.<br>
-      🎙️ الصوت يعمل عبر TURN TLS — مدعوم في اليمن.</p>
-      <div class="setting"><label>اسمك</label>
-        <input id="pname" value="${save.playerName||'لاعب'}" maxlength="12" style="padding:8px;border-radius:8px;border:1px solid #3d6f96;background:#091c36;color:#fff;width:130px;text-align:center">
+    menu('🌐 اللعب الجماعي أونلاين', `
+      <p>العب مع أصدقائك في نفس المعركة مع ميزة الصوت الحي.</p>
+      <div class="card"><label>اسم الطيار</label>
+        <input id="pname" value="${save.playerName||'كابتن'}" maxlength="12" style="padding:8px;border-radius:8px;border:1px solid #00e5ff;background:#061226;color:#fff;width:130px;text-align:center">
       </div>
-      <button class="big" id="createRoom" style="background:linear-gradient(100deg,#27b56a,#3fbf88)">➕ إنشاء غرفة</button>
-      <hr style="border-color:#2b4c72;margin:14px 0">
-      <div class="setting"><label>رمز الغرفة</label>
-        <input id="joincode" placeholder="ABCDE" maxlength="6" style="padding:8px;border-radius:8px;border:1px solid #3d6f96;background:#091c36;color:#fff;width:130px;text-align:center;letter-spacing:4px;text-transform:uppercase">
+      <button class="big" id="createRoom" style="background:linear-gradient(100deg,#10b981,#047857)">➕ إنشاء غرفة جديدة</button>
+      <hr style="border:0;border-top:1px solid rgba(255,255,255,0.15);margin:14px 0">
+      <div class="card"><label>رمز الغرفة</label>
+        <input id="joincode" placeholder="XXXX" maxlength="6" style="padding:8px;border-radius:8px;border:1px solid #00e5ff;background:#061226;color:#fff;width:130px;text-align:center;letter-spacing:4px;text-transform:uppercase">
       </div>
-      <button class="big" id="joinRoom">🔑 انضمام بالرمز</button>
-      <button class="big secondary" id="back">⬅ الرئيسية</button>
+      <button class="big" id="joinRoom">🔑 انضمام إلى غرفة</button>
+      <button class="big secondary" id="back">⬅ رجوع</button>
     `);
     $('back').onclick = main;
     $('createRoom').onclick = () => {
-      save.playerName = ($('pname').value||'لاعب').slice(0,12); persist();
+      save.playerName = ($('pname').value||'كابتن').slice(0,12); persist();
       netConnect(() => netSend({ t:'create', name: save.playerName }));
     };
     $('joinRoom').onclick = () => {
       const code = ($('joincode').value||'').trim().toUpperCase();
       if (code.length < 4) return toast('أدخل رمزاً صحيحاً');
-      save.playerName = ($('pname').value||'لاعب').slice(0,12); persist();
+      save.playerName = ($('pname').value||'كابتن').slice(0,12); persist();
       netConnect(() => netSend({ t:'join', code, name: save.playerName }));
     };
   }
@@ -552,27 +658,27 @@
     for (const [id,p] of net.players){
       n++;
       const isHost = id === net.hostId;
-      list += `<div class="card"><div><b>${p.name||'لاعب'}</b> ${isHost?'<span class="badge">🛩️ المضيف</span>':'<span class="badge" style="background:#7a4a2a;color:#ffd9b8">✈️ الضيف</span>'}${id===net.myId?' (أنت)':''}</div>
+      list += `<div class="card"><div><b>${p.name||'لاعب'}</b> ${isHost?'<span class="badge">🛩️ قائد السرب</span>':'<span class="badge" style="background:#b45309">✈️ مرافق</span>'}${id===net.myId?' (أنت)':''}</div>
                  <div>${id===net.myId?'🎮':'🛰️'}</div></div>`;
     }
     const isHost = net.host;
     const hostLevel = Math.min(399, save.progress);
     const w = Math.floor(hostLevel/20)+1, l = hostLevel%20+1;
 
-    menu('🎮 غرفة اللعب الجماعي', `
-      <p>شارك هذا الرمز مع صديقك:</p>
+    menu('🎮 غرفة الانتظار', `
+      <p>شارك الرمز مع صديقك:</p>
       <div class="roomcode">${net.roomCode}</div>
-      <p class="tiny">اللاعبون (${n}/2):</p>
+      <p class="tiny">أعضاء الفريق (${n}/2):</p>
       ${list}
-      <div class="setting" style="margin-top:14px">
-        <label>🎙️ الدردشة الصوتية</label>
-        <button class="big" id="micToggle" style="margin:0;padding:9px 16px;${micOn?'background:#1d8348':''}">${micOn?'🔴 إيقاف':'🟢 تشغيل'}</button>
+      <div class="card" style="margin-top:14px">
+        <label>🎙️ المحادثة الصوتية</label>
+        <button class="big" id="micToggle" style="margin:0;padding:9px 16px;${micOn?'background:#16a34a':''}">${micOn?'🔴 إيقاف المايك':'🟢 تفعيل المايك'}</button>
       </div>
       ${isHost
-        ? `<button class="big" id="startNet" style="background:linear-gradient(100deg,#27b56a,#4fd8a1)">▶ بدء المعركة</button>
-           <p class="tiny">ستبدأ في: 🌍 ${w} · المستوى ${l}</p>`
-        : `<p class="notice">⏳ بانتظار المضيف ليبدأ اللعبة...</p>`}
-      <button class="big secondary" id="leaveRoom">🚪 مغادرة الغرفة</button>
+        ? `<button class="big" id="startNet" style="background:linear-gradient(100deg,#10b981,#059669)">🚀 إقلاع السرب</button>
+           <p class="tiny">العالم ${w} · المستوى ${l}</p>`
+        : `<p class="notice">⏳ بانتظار إشارة قائد السرب للانطلاق...</p>`}
+      <button class="big secondary" id="leaveRoom">🚪 مغادرة</button>
     `);
     state = 'lobby';
     $('micToggle').onclick = async () => { await toggleMic(); lobbyScreen(); };
@@ -581,8 +687,7 @@
   }
 
   function startOnline(index){
-    net.online = true;
-    net.pendingBullets = [];
+    net.online = true; net.pendingBullets = [];
     selectedLevel = index;
     world = Math.floor(index/20)+1; worldIndex = world-1;
     level = index%20+1;
@@ -590,24 +695,24 @@
     score = earned = kills = time = 0;
     spawn = .6; bossActive = bossDone = false;
     shake = 0; combo = 1; comboTime = 0; slow = 0; weapon = 0;
-    enemies = []; shots = []; bad = []; drops = []; particles = []; remoteShots.length = 0;
-    Object.assign(player, { x:W/2, y:H-155, tx:W/2, ty:H-155,
+    enemies = []; shots = []; bad = []; drops = []; particles = []; shockwaves = [];
+    remoteShots.length = 0;
+    Object.assign(player, { x:W/2, y:H-160, tx:W/2, ty:H-160,
       maxHp:3+save.upgrades.armor, hp:3+save.upgrades.armor,
       inv:2, shield:0, power:1, fire:0, bombs:3, alive:true });
     $('overlay').classList.add('hide');
     buildBar(); hud(); updateMicUI();
-    toast('🌐 معركة جماعية — ' + WORLD_NAMES[worldIndex] + ' · المستوى ' + level);
+    toast('🌐 انطلقت المهمة الجماعية!');
   }
 
   function finishOnline(win){
     if (state === 'over') return;
     state = 'over';
     save.best = Math.max(save.best, score); persist();
-    menu(win?'🏆 انتصار الفريق!':'💥 انتهت المعركة', `
-      <p>النقاط: <b>${score}</b> | 🪙 ${earned}<br>الطائرات المدمرة: ${kills}</p>
-      ${net.host ? '<button class="big" id="againNet">🔁 معركة جديدة</button>'
-                 : '<p class="tiny">بانتظار المضيف...</p>'}
-      <button class="big secondary" id="leaveNet">🚪 مغادرة الغرفة</button>
+    menu(win?'🏆 نصر حاسم للفريق!':'💥 سقطت الطائرة في المعركة', `
+      <p>النقاط الإجمالية: <b>${score}</b> | 🪙 الغنائم: ${earned}<br>الأعداء المدمرون: ${kills}</p>
+      ${net.host ? '<button class="big" id="againNet">🔁 إعادة المهمة</button>' : '<p class="tiny">بانتظار قرار قائد السرب...</p>'}
+      <button class="big secondary" id="leaveNet">🚪 خروج للرئيسية</button>
     `);
     state = 'over';
     $('againNet')?.addEventListener('click', () => netSend({ t:'restart' }));
@@ -615,75 +720,74 @@
   }
 
   function worldSelect(){
-    let html = `<p>اختر عالماً.</p><div class="worldgrid">`;
+    let html = `<p>اختر مسرح العمليات الكونية:</p><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">`;
     for (let i = 0; i < 20; i++){
-      const first = i*20;
-      const open = first <= save.progress;
-      const done = save.progress >= first + 20;
-      html += `<button data-w="${i}" ${open?'':'disabled'}>${done?'🏆':open?'🌍':'🔒'}<br>${i+1}. ${WORLD_NAMES[i]}<br><small>${Math.max(0, Math.min(20, save.progress-first))}/20</small></button>`;
+      const first = i*20, open = first <= save.progress, done = save.progress >= first + 20;
+      html += `<button data-w="${i}" style="border-radius:12px;padding:12px 6px;min-height:65px;background:${open?'#142b4d':'#0a1424'};border:1px solid ${open?'#00e5ff44':'#ffffff15'};color:#fff" ${open?'':'disabled'}>
+        ${done?'🏆':open?'🌍':'🔒'}<br><b>${i+1}. ${WORLD_NAMES[i]}</b><br><small style="color:#7fb5df">${Math.max(0, Math.min(20, save.progress-first))}/20</small>
+      </button>`;
     }
-    html += `</div><button class="big secondary" id="back">⬅ الرئيسية</button>`;
-    menu('🗺️ اختر المرحلة', html);
+    html += `</div><button class="big secondary" id="back" style="margin-top:12px">⬅ الرئيسية</button>`;
+    menu('🗺️ خرائط النجوم', html);
     document.querySelectorAll('[data-w]').forEach(b => b.onclick = () => levelSelect(+b.dataset.w));
     $('back').onclick = main;
   }
+
   function levelSelect(w){
-    let html = `<p>العالم ${w+1}: ${WORLD_NAMES[w]}</p><div class="levelgrid">`;
+    let html = `<p>${WORLD_NAMES[w]} (العالم ${w+1})</p><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0">`;
     for (let j = 0; j < 20; j++){
-      const n = w*20+j;
-      const open = n <= save.progress, done = n < save.progress;
-      html += `<button class="${done?'done':open?'current':'locked'}" data-l="${n}" ${open?'':'disabled'}>${done?'★':open?'▶':'🔒'}<br>${j+1}</button>`;
+      const n = w*20+j, open = n <= save.progress, done = n < save.progress;
+      html += `<button data-l="${n}" style="min-height:50px;border-radius:12px;background:${done?'#065f46':open?'#b45309':'#0d1728'};border:1px solid ${done?'#34d399':open?'#fbbf24':'#ffffff15'};color:#fff;font-weight:900" ${open?'':'disabled'}>
+        ${done?'★':open?'▶':'🔒'}<br>${j+1}
+      </button>`;
     }
     html += `</div><button class="big secondary" id="back">⬅ العوالم</button>`;
-    menu('🎯 مستويات ' + (w+1), html);
+    menu('🎯 مراحل العالم ' + (w+1), html);
     document.querySelectorAll('[data-l]').forEach(b => b.onclick = () => start(+b.dataset.l));
     $('back').onclick = worldSelect;
   }
 
   function settingsPage(){
     const v = save.settings;
-    menu('⚙️ الإعدادات', `
-      <div class="setting"><label>🔊 المؤثرات</label><input id="setSound" type="checkbox" ${v.sound?'checked':''}></div>
-      <div class="setting"><label>🔉 الصوت</label><input id="setVolume" type="range" min="0" max="100" value="${v.volume}"></div>
-      <div class="setting"><label>✨ المؤثرات</label><select id="setParticles"><option value="low">منخفضة</option><option value="medium">متوسطة</option><option value="high">عالية</option></select></div>
-      <div class="setting"><label>📳 اهتزاز</label><input id="setShake" type="checkbox" ${v.shake?'checked':''}></div>
-      <div class="setting"><label>🌟 نجوم</label><input id="setStars" type="checkbox" ${v.stars?'checked':''}></div>
-      <div class="setting"><label>🕹️ اللمس</label><select id="setControls"><option value="slow">هادئة</option><option value="normal">عادية</option><option value="fast">سريعة</option></select></div>
-      <button class="big" id="saveSettings">💾 حفظ</button>
+    menu('⚙️ خيارات اللعبة', `
+      <div class="card"><label>🔊 المؤثرات الصوتية</label><input id="setSound" type="checkbox" ${v.sound?'checked':''}></div>
+      <div class="card"><label>🔉 مستوى الصوت</label><input id="setVolume" type="range" min="0" max="100" value="${v.volume}"></div>
+      <div class="card"><label>📳 اهتزاز الهاتف (Haptic)</label><input id="setShake" type="checkbox" ${v.shake?'checked':''}></div>
+      <div class="card"><label>✨ جودة الجرافيكس</label><select id="setParticles" style="background:#06142a;color:#fff;padding:6px;border-radius:8px"><option value="low">اقتصادي</option><option value="medium">متوازن</option><option value="high">خارق (Neon Ultra)</option></select></div>
+      <div class="card"><label>🕹️ حساسية اللمس</label><select id="setControls" style="background:#06142a;color:#fff;padding:6px;border-radius:8px"><option value="slow">دقيقة</option><option value="normal">متوازنة</option><option value="fast">سريعة جداً</option></select></div>
+      <button class="big" id="saveSettings">💾 حفظ الإعدادات</button>
       <button class="big secondary" id="back">⬅ الرئيسية</button>
-      <button class="big secondary" id="resetProgress">🗑️ حذف التقدم</button>
     `);
     $('setParticles').value = v.particles; $('setControls').value = v.controls;
     $('saveSettings').onclick = () => {
       save.settings = {
         sound:$('setSound').checked, volume:+$('setVolume').value,
-        particles:$('setParticles').value, shake:$('setShake').checked,
-        stars:$('setStars').checked, controls:$('setControls').value
+        shake:$('setShake').checked, particles:$('setParticles').value,
+        stars:true, controls:$('setControls').value
       };
       sound = save.settings.sound;
       $('sound').textContent = sound ? '🔊' : '🔇';
-      persist(); settingsPage();
+      persist(); toast('✅ تم الحفظ بنجاح'); settingsPage();
     };
     $('back').onclick = main;
-    $('resetProgress').onclick = () => { if (confirm('حذف كل التقدم؟')){ localStorage.removeItem('airLegendsSave'); location.reload(); } };
   }
 
   function shop(){
-    let html = `<p>🪙 رصيدك: ${save.coins}</p>`;
-    const ups = [['damage','قوة الرصاص','ضرر أعلى',120],['armor','درع البداية','حياة أكثر',150],['magnet','مغناطيس','جمع المكافآت',100]];
+    let html = `<p>🪙 رصيدك الحالي: <b>${save.coins}</b> عملة</p>`;
+    const ups = [['damage','قوة النيران الفوتونية','زيادة الضرر بنسبة 35%',120],['armor','الدروع المعززة','طاقة إضافية للطائرة',150],['magnet','المغناطيس الكهرومغناطيسي','جذب المكافآت من مسافات أبعد',100]];
     for (const [k,n,d,b] of ups){
       const lv = save.upgrades[k], cost = b*(lv+1);
-      html += `<div class="card"><div><b>${n} (${lv}/5)</b><small>${d}</small></div>
-        <button data-up="${k}" ${lv>=5||save.coins<cost?'disabled':''}>${lv>=5?'مكتمل':'🪙 '+cost}</button></div>`;
+      html += `<div class="card"><div><b>${n} (${lv}/5)</b><small style="display:block;color:#9bb8d6">${d}</small></div>
+        <button data-up="${k}" ${lv>=5||save.coins<cost?'disabled':''}>${lv>=5?'الحد الأقصى':'🪙 '+cost}</button></div>`;
     }
-    html += '<h3>🔓 فتح الأسلحة</h3>';
+    html += '<h3 style="color:#a3edff;margin-top:16px">🔓 ترسانة الأسلحة المتطورة</h3>';
     for (let i = 1; i < WEAP.length; i++){
       const w = WEAP[i], cost = i*180;
-      html += `<div class="card"><div><b>${w[0]} ${w[1]}</b><small>${w[3]}</small></div>
-        <button data-weapon="${i}" ${save.unlocked.includes(i)||save.coins<cost?'disabled':''}>${save.unlocked.includes(i)?'مفتوح':'🪙 '+cost}</button></div>`;
+      html += `<div class="card"><div><b>${w[0]} ${w[1]}</b><small style="display:block;color:#9bb8d6">${w[3]}</small></div>
+        <button data-weapon="${i}" ${save.unlocked.includes(i)||save.coins<cost?'disabled':''}>${save.unlocked.includes(i)?'مجهز':'🪙 '+cost}</button></div>`;
     }
-    html += '<button class="big secondary" id="back">↩ رجوع</button>';
-    menu('🛒 المتجر', html);
+    html += '<button class="big secondary" id="back" style="margin-top:12px">↩ رجوع</button>';
+    menu('🛒 متجر الترقيات', html);
     $('back').onclick = main;
     document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => {
       const k = b.dataset.up, lv = save.upgrades[k];
@@ -698,13 +802,13 @@
 
   function tasks(){
     const m = save.missions;
-    const arr = [['دمّر 50 طائرة', m.kills, 50, 100],['اهزم زعيمين', m.bosses, 2, 160],['اجمع 150 عملة', m.earned, 150, 120]];
-    let html = '<p>تتجدد يومياً.</p>';
+    const arr = [['تدمير 50 طائرة معادية', m.kills, 50, 100],['قهر 2 من الزعماء الكبار', m.bosses, 2, 160],['جمع 150 من مكعبات الطاقة', m.earned, 150, 120]];
+    let html = '<p>المهام تتجدد يومياً تلقائياً.</p>';
     arr.forEach((a,i)=> html += `<div class="card"><div><b>${a[0]}</b>
-      <small>${Math.min(a[1],a[2])}/${a[2]} — 🪙 ${a[3]}</small></div>
-      <button data-claim="${i}" ${a[1]<a[2]||m.claimed[i]?'disabled':''}>${m.claimed[i]?'تم':'استلام'}</button></div>`);
-    html += '<button class="big secondary" id="back">↩ رجوع</button>';
-    menu('📅 المهام', html);
+      <small style="display:block;color:#9bb8d6">${Math.min(a[1],a[2])}/${a[2]} — المكافأة: 🪙 ${a[3]}</small></div>
+      <button data-claim="${i}" ${a[1]<a[2]||m.claimed[i]?'disabled':''}>${m.claimed[i]?'تمت المطالبة':'استلام'}</button></div>`);
+    html += '<button class="big secondary" id="back" style="margin-top:12px">↩ رجوع</button>';
+    menu('📅 المهام اليومية', html);
     $('back').onclick = main;
     document.querySelectorAll('[data-claim]').forEach(b => b.onclick = () => {
       const i = +b.dataset.claim;
@@ -725,8 +829,7 @@
 
   function start(index = selectedLevel){
     if (index > save.progress || index < 0 || index >= 400) return;
-    net.online = false;
-    selectedLevel = index;
+    net.online = false; selectedLevel = index;
     world = Math.floor(index/20)+1; worldIndex = world-1;
     level = index%20+1;
     levelDuration = 24 + level*1.1 + Math.floor(index/40)*2;
@@ -734,22 +837,23 @@
     score = earned = kills = time = 0;
     spawn = .6; bossActive = bossDone = false;
     shake = 0; combo = 1; comboTime = 0; slow = 0; weapon = 0;
-    enemies = []; shots = []; bad = []; drops = []; particles = []; remoteShots.length = 0;
-    Object.assign(player, { x:W/2, y:H-155, tx:W/2, ty:H-155,
+    enemies = []; shots = []; bad = []; drops = []; particles = []; shockwaves = [];
+    remoteShots.length = 0;
+    Object.assign(player, { x:W/2, y:H-160, tx:W/2, ty:H-160,
       maxHp:3+save.upgrades.armor, hp:3+save.upgrades.armor,
       inv:2, shield:0, power:1, fire:0, bombs:2, alive:true });
     $('overlay').classList.add('hide');
     buildBar(); hud(); updateMicUI();
-    toast('🌍 ' + WORLD_NAMES[worldIndex] + ' · المستوى ' + level);
+    toast('🌍 ' + WORLD_NAMES[worldIndex] + ' · المرحلة ' + level);
   }
 
   function pause(){
     if (state !== 'play') return;
     state = 'pause';
-    menu('⏸ إيقاف مؤقت', `
-      <p>النقاط: ${score} · 🌍 ${world} · المستوى ${level}${net.online?'<br><b>🌐 لعبة جماعية</b>':''}</p>
-      <button class="big" id="resume">▶ متابعة</button>
-      <button class="big secondary" id="quit">${net.online?'🚪 مغادرة الغرفة':'🏠 الرئيسية'}</button>
+    menu('⏸ استراحة محارب', `
+      <p>النقاط: ${score} · 🌍 ${world} · المرحلة ${level}</p>
+      <button class="big" id="resume">▶ متابعة القتال</button>
+      <button class="big secondary" id="quit">${net.online?'🚪 مغادرة الغرفة':'🏠 القائمة الرئيسية'}</button>
     `);
     state = 'pause';
     $('resume').onclick = () => { state = 'play'; $('overlay').classList.add('hide'); hud(); };
@@ -769,11 +873,11 @@
       gain(40 + world*8 + level*4);
     }
     persist();
-    menu(win?'🏆 المستوى مكتمل!':'💥 انتهت المحاولة', `
-      <p>🌍 ${WORLD_NAMES[worldIndex]} · المستوى ${level}/20<br>
-      النقاط: <b>${score}</b> | 🪙 ${earned}<br>الطائرات: ${kills}</p>
-      <button class="big" id="again">${win && selectedLevel<399?'▶ التالي':'🔄 إعادة'}</button>
-      <button class="big secondary" id="levels">🗺️ المستويات</button>
+    menu(win?'🏆 اكتملت المهمة بنجاح!':'💥 تحطمت الطائرة', `
+      <p>🌍 ${WORLD_NAMES[worldIndex]} · المرحلة ${level}/20<br>
+      النقاط المحققة: <b>${score}</b> | 🪙 المكافأة: ${earned}<br>الطائرات الساقطة: ${kills}</p>
+      <button class="big" id="again">${win && selectedLevel<399?'▶ المرحلة التالية':'🔄 المحاولة مجدداً'}</button>
+      <button class="big secondary" id="levels">🗺️ قائمة المراحل</button>
       <button class="big secondary" id="home">🏠 الرئيسية</button>
     `);
     state = 'over';
@@ -784,17 +888,37 @@
 
   function gain(n){ save.coins += n; earned += n; save.missions.earned += n; persist(); }
 
-  function burst(x, y, color, n=18){
-    n = Math.round(n * ({low:.35, medium:1, high:1.5}[save.settings.particles]||1));
-    for (let i = 0; i < n && particles.length < 400; i++){
-      const a = rnd(0,TAU), v = rnd(45,240), life = rnd(.2,.7);
-      particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life,max:life,color,r:rnd(1,4)});
+  /* =========================================================
+     نظام الجرافيكس المطور (VFX, Particles & Shockwaves)
+     ========================================================= */
+  function addShockwave(x, y, maxR=60, color='#00e5ff'){
+    shockwaves.push({ x, y, r:4, maxR, color, alpha:1 });
+  }
+
+  function burst(x, y, color, n=20){
+    const mult = {low:0.35, medium:0.8, high:1.4}[save.settings.particles] || 1.2;
+    n = Math.round(n * mult);
+    for (let i = 0; i < n && particles.length < 500; i++){
+      const a = rnd(0, TAU), v = rnd(50, 260), life = rnd(0.25, 0.7);
+      particles.push({ x, y, vx:Math.cos(a)*v, vy:Math.sin(a)*v, life, max:life, color, r:rnd(1.5, 4.5) });
     }
+  }
+
+  /* نفاثات الطائرة البلازمية */
+  function addThrusterParticles(x, y, color1='#00e5ff', color2='#ff7a00'){
+    if (save.settings.particles === 'low') return;
+    particles.push({
+      x: x + rnd(-3, 3), y: y + 26,
+      vx: rnd(-15, 15), vy: rnd(140, 260),
+      life: 0.18, max: 0.18, color: Math.random() > 0.4 ? color1 : color2,
+      r: rnd(2, 4.5)
+    });
   }
 
   function addShot(x,y,vx,vy,damage=1,kind='machine',r=5){
     shots.push({id:++shotId,x,y,vx,vy,damage,kind,r,hit:new Set(),life:2.5});
   }
+
   function nearest(x,y){
     let best = null, d = Infinity;
     for (const e of enemies){
@@ -804,55 +928,54 @@
     return best;
   }
 
-  /* ★★★ الإطلاق — يجمع الطلقات في net.pendingBullets ★★★ */
   function fire(){
-    const x = player.x, y = player.y-29;
-    const damage = 1 + save.upgrades.damage*.35;
+    const x = player.x, y = player.y - 28;
+    const damage = 1 + save.upgrades.damage*0.35;
     const extra = player.power - 1;
     const newBullets = [];
 
-    if (weapon === 0) for (let i = -extra; i <= extra; i++) newBullets.push({x:x+i*9, y, vx:i*34, vy:-850, dmg:damage, kind:'machine', r:5});
-    if (weapon === 1) for (let i = 0; i < 1+Math.floor(extra/2); i++) newBullets.push({x:x+(i-.5)*18, y, vx:0, vy:-440, dmg:damage*3, kind:'missile', r:9});
-    if (weapon === 2) newBullets.push({x, y, vx:0, vy:-1100, dmg:damage*1.4, kind:'laser', r:11});
-    if (weapon === 4) for (let i = -1-extra; i <= 1+extra; i++) newBullets.push({x:x+i*6, y, vx:i*60, vy:-680, dmg:damage*1.5, kind:'fire', r:8});
-    if (weapon === 5){
-      const n = 10 + extra*2;
+    if (weapon === 0) {
+      for (let i = -extra; i <= extra; i++)
+        newBullets.push({x:x+i*10, y, vx:i*30, vy:-900, dmg:damage, kind:'machine', r:5});
+    } else if (weapon === 1) {
+      for (let i = 0; i < 1+Math.floor(extra/2); i++)
+        newBullets.push({x:x+(i-0.5)*20, y, vx:0, vy:-480, dmg:damage*3, kind:'missile', r:9});
+    } else if (weapon === 2) {
+      newBullets.push({x, y, vx:0, vy:-1200, dmg:damage*1.4, kind:'laser', r:12});
+    } else if (weapon === 4) {
+      for (let i = -1-extra; i <= 1+extra; i++)
+        newBullets.push({x:x+i*7, y, vx:i*65, vy:-720, dmg:damage*1.5, kind:'fire', r:8});
+    } else if (weapon === 5) {
+      const n = 12 + extra*2;
       for (let i = 0; i < n; i++){
         const a = TAU*i/n;
-        newBullets.push({x, y, vx:Math.cos(a)*550, vy:Math.sin(a)*550, dmg:damage, kind:'radial', r:5});
+        newBullets.push({x, y, vx:Math.cos(a)*600, vy:Math.sin(a)*600, dmg:damage, kind:'radial', r:5});
       }
     }
 
-    /* إضافة محلية للتصادم والرسم */
     for (const b of newBullets) addShot(b.x, b.y, b.vx, b.vy, b.dmg, b.kind, b.r);
 
-    /* ★ تجميع للبث مع رسالة الموقع */
     if (net.online){
-      for (const b of newBullets){
-        net.pendingBullets.push({ x:b.x, y:b.y, vx:b.vx, vy:b.vy, kind:b.kind, r:b.r });
-      }
-      if (net.pendingBullets.length > 200)
-        net.pendingBullets.splice(0, net.pendingBullets.length - 200);
+      for (const b of newBullets) net.pendingBullets.push({ x:b.x, y:b.y, vx:b.vx, vy:b.vy, kind:b.kind, r:b.r });
+      if (net.pendingBullets.length > 200) net.pendingBullets.splice(0, net.pendingBullets.length - 200);
     }
-    tone(weapon===1?330:950, .035);
+    tone(weapon===1?300:920, .035);
   }
 
   function bomb(){
     if (state !== 'play' || player.bombs <= 0 || !player.alive) return;
-    player.bombs--;
-    bad = [];
-    shake = 19;
-    burst(player.x, player.y, '#fff4a4', 75);
+    player.bombs--; bad = []; shake = 24; vibrate(120);
+    addShockwave(player.x, player.y, 240, '#ffd56b');
+    burst(player.x, player.y, '#ffffff', 90);
     if (net.online){
-      for (const e of enemies) netSend({ t:'hit', id:e.id, dmg: e.type==='boss'?12:100 });
+      for (const e of enemies) netSend({ t:'hit', id:e.id, dmg: e.type==='boss'?14:100 });
     } else {
       for (let i = enemies.length-1; i >= 0; i--){
-        const e = enemies[i];
-        e.hp -= e.type==='boss' ? 35 : 100;
+        const e = enemies[i]; e.hp -= e.type==='boss' ? 40 : 100;
         if (e.hp <= 0) kill(i);
       }
     }
-    tone(90, .6); hud();
+    tone(80, .7); hud();
   }
 
   function enemySpawn(){
@@ -861,70 +984,71 @@
     const roll = Math.random();
     const type = roll < Math.min(.48, .08+difficulty*.065+(pattern===2?.12:0)) ? 'tank'
                : roll < (.52+(pattern===1?.18:0)) ? 'zig' : 'grunt';
-    const r = type==='tank'?25:19;
+    const r = type==='tank'?26:20;
     const hp = type==='tank'?Math.ceil(4+difficulty*2.2)
              : type==='zig'?Math.ceil(1+difficulty*.8)
              : Math.ceil(difficulty*.48);
     enemies.push({
       id: 'L'+(++localEid), type, x:rnd(40,W-40), y:-55, r, hp, max:hp,
-      vy: (type==='tank'?75:125) + Math.min(210, difficulty*17) + (pattern===3?35:0),
-      fire: rnd(1,2.5), t:0, dir:1,
-      score: type==='tank'?35:15
+      vy: (type==='tank'?75:130) + Math.min(220, difficulty*18),
+      fire: rnd(1,2.5), t:0, dir:1, score: type==='tank'?35:15
     });
   }
 
   function boss(){
     bossActive = true;
-    const hp = Math.ceil(38 + selectedLevel*2.4 + level*3.5);
-    enemies.push({ id:'B'+(++localEid), type:'boss', x:W/2, y:-110, r:62, hp, max:hp,
-      vy:0, fire:1.5, t:0, dir:1, enter:true, score:300+world*100 });
-    toast('⚠️ زعيم المرحلة ' + world + ' · المستوى ' + level);
-    tone(130, .5);
+    const hp = Math.ceil(42 + selectedLevel*2.5 + level*3.8);
+    enemies.push({ id:'B'+(++localEid), type:'boss', x:W/2, y:-120, r:64, hp, max:hp,
+      vy:0, fire:1.4, t:0, dir:1, enter:true, score:300+world*100 });
+    toast('⚠️ تحذير: ظهر زعيم العالم ' + world + '!');
+    tone(110, .6); vibrate(80);
   }
 
   function kill(i){
-    const e = enemies[i];
-    if (!e) return;
+    const e = enemies[i]; if (!e) return;
     enemies.splice(i,1);
     score += e.score*combo;
     combo = Math.min(9, combo+1); comboTime = 3;
-    shake = Math.max(shake, e.type==='boss'?15:4);
-    burst(e.x, e.y, e.type==='boss'?'#ffcb62':'#ff7d53', e.type==='boss'?60:18);
+    shake = Math.max(shake, e.type==='boss'?18:5);
+    vibrate(e.type==='boss'?80:30);
+    addShockwave(e.x, e.y, e.type==='boss'?90:35, '#00e5ff');
+    burst(e.x, e.y, e.type==='boss'?'#ffbe0b':'#ff3366', e.type==='boss'?70:22);
     if (e.type === 'boss'){
       bossActive = false; bossDone = true;
-      save.missions.bosses++;
-      gain(100+world*20);
-      toast('🏆 هزمت زعيم العالم ' + world);
-      for (let j = 0; j < 3; j++) drops.push({x:e.x+rnd(-55,55), y:e.y, kind:j===0?'life':j===1?'power':'bomb', t:0});
+      save.missions.bosses++; gain(100+world*20);
+      toast('🏆 تم تحييد زعيم العالم ' + world);
+      for (let j = 0; j < 3; j++) drops.push({x:e.x+rnd(-50,50), y:e.y, kind:j===0?'life':j===1?'power':'bomb', t:0});
     } else {
-      kills++; save.missions.kills++;
-      gain(2+world);
-      if (Math.random() < .12) drops.push({x:e.x, y:e.y, kind:['power','life','shield','slow','bomb'][Math.floor(rnd(0,5))], t:0});
+      kills++; save.missions.kills++; gain(2+world);
+      if (Math.random() < .13) drops.push({x:e.x, y:e.y, kind:['power','life','shield','slow','bomb'][Math.floor(rnd(0,5))], t:0});
     }
     persist();
   }
 
   function hurt(){
     if (!player.alive || player.inv > 0) return;
-    if (player.shield > 0){ player.shield = Math.max(0, player.shield-2); player.inv = .35; tone(800,.05); return; }
-    player.hp--; player.inv = 2; combo = 1; shake = 13;
-    burst(player.x, player.y, '#8feaff', 28);
-    tone(160, .3);
+    if (player.shield > 0){
+      player.shield = Math.max(0, player.shield-2);
+      player.inv = 0.4; tone(800, .05); vibrate(30); return;
+    }
+    player.hp--; player.inv = 2.2; combo = 1; shake = 15; vibrate(70);
+    addShockwave(player.x, player.y, 45, '#ff3366');
+    burst(player.x, player.y, '#00e5ff', 30);
+    tone(150, .35);
     if (player.hp <= 0) finish(false);
   }
 
-  function aimed(x,y,s=235){
+  function aimed(x,y,s=240){
     const dx = player.x-x, dy = player.y-y, L = Math.hypot(dx,dy)||1;
-    bad.push({ id:'e'+Math.random(), x, y, vx:dx/L*s, vy:dy/L*s, r:7 });
+    bad.push({ id:'e'+Math.random(), x, y, vx:dx/L*s, vy:dy/L*s, r:7.5 });
   }
 
   /* =========================================================
-     التحديث
+     التحديث الفيزيائي (Game Loop Logic)
      ========================================================= */
   function update(dt){
     const ds = dt/1000;
-    time += ds;
-    toastTime -= ds;
+    time += ds; toastTime -= ds;
     if (toastTime <= 0) $('toast').style.opacity = 0;
 
     player.inv = Math.max(0, player.inv - ds);
@@ -934,7 +1058,7 @@
     if (comboTime <= 0) combo = 1;
 
     if (player.alive){
-      const move = 380*ds;
+      const move = 400*ds;
       if (keys.ArrowLeft  || keys.KeyA) player.tx -= move;
       if (keys.ArrowRight || keys.KeyD) player.tx += move;
       if (keys.ArrowUp    || keys.KeyW) player.ty -= move;
@@ -942,21 +1066,34 @@
       player.tx = clamp(player.tx, 25, W-25);
       player.ty = clamp(player.ty, 110, H-95);
 
-      const k = 1 - Math.exp(-13*ds);
+      const k = 1 - Math.exp(-15*ds);
       player.x += (player.tx-player.x)*k;
       player.y += (player.ty-player.y)*k;
 
+      /* إضافة ألسنة اللهب النفاثة */
+      addThrusterParticles(player.x - 14, player.y);
+      addThrusterParticles(player.x + 14, player.y);
+
       player.fire -= ds;
-      if (player.fire <= 0){ fire(); player.fire = [.13,.48,.13,1,.25,.55][weapon]; }
+      if (player.fire <= 0){
+        fire();
+        player.fire = [.12,.44,.12,1,.24,.52][weapon];
+      }
+    }
+
+    /* موجات الصدمة Shockwaves */
+    for (let i = shockwaves.length - 1; i >= 0; i--){
+      const sw = shockwaves[i];
+      sw.r += (sw.maxR - sw.r) * (ds * 9);
+      sw.alpha -= ds * 1.8;
+      if (sw.alpha <= 0.05) shockwaves.splice(i, 1);
     }
 
     if (net.online){
       for (const e of enemies){
-        const k = Math.min(1, ds*14);
-        e.x += (e.tx - e.x)*k;
-        e.y += (e.ty - e.y)*k;
-        e.t += ds;
-        if (e.flash > 0) e.flash -= ds;
+        e.x += (e.tx - e.x)*Math.min(1, ds*14);
+        e.y += (e.ty - e.y)*Math.min(1, ds*14);
+        e.t += ds; if (e.flash > 0) e.flash -= ds;
       }
       for (let i = bad.length-1; i >= 0; i--){
         const b = bad[i];
@@ -970,27 +1107,14 @@
       for (let i = remoteShots.length-1; i >= 0; i--){
         const b = remoteShots[i];
         b.life -= ds;
-        if (b.kind === 'missile'){
-          const t = nearest(b.x, b.y);
-          if (t){
-            const dx = t.x-b.x, dy = t.y-b.y, d = Math.hypot(dx,dy)||1;
-            b.vx += (dx/d*570 - b.vx)*Math.min(1,ds*4);
-            b.vy += (dy/d*570 - b.vy)*Math.min(1,ds*4);
-          }
-        }
         b.x += b.vx*ds; b.y += b.vy*ds;
-        if (b.life <= 0 || b.y < -50 || b.y > H+50 || b.x < -50 || b.x > W+50) remoteShots.splice(i,1);
+        if (b.life <= 0 || b.y < -50 || b.y > H+50) remoteShots.splice(i,1);
       }
-
-      /* ★★★ إرسال مجمّع كل 100 مللي ثانية ★★★ */
       net.sendT -= ds;
       if (net.sendT <= 0){
-        net.sendT = 0.10;
+        net.sendT = 0.09;
         const msg = { t:'p', x:Math.round(player.x), y:Math.round(player.y) };
-        if (net.pendingBullets.length){
-          msg.shoot = net.pendingBullets;
-          net.pendingBullets = [];
-        }
+        if (net.pendingBullets.length){ msg.shoot = net.pendingBullets; net.pendingBullets = []; }
         netSend(msg);
       }
     } else {
@@ -1000,7 +1124,7 @@
         spawn -= ds;
         if (spawn <= 0){
           enemySpawn();
-          spawn = Math.max(.22, 1.12 - selectedLevel*.0021 - (level%5)*.045) * rnd(.7,1.3);
+          spawn = Math.max(.22, 1.1 - selectedLevel*.0021) * rnd(.7,1.25);
         }
       }
       const factor = slow > 0 ? .45 : 1;
@@ -1008,31 +1132,31 @@
         const e = enemies[i];
         e.t += ds;
         if (e.type === 'boss'){
-          if (e.enter){ e.y += 95*ds; if (e.y >= 132){ e.y = 132; e.enter = false; } }
+          if (e.enter){ e.y += 95*ds; if (e.y >= 135){ e.y = 135; e.enter = false; } }
           else {
-            e.x += e.dir*(80+world*9)*ds*factor;
+            e.x += e.dir*(85+world*9)*ds*factor;
             if (e.x < 75 || e.x > W-75) e.dir *= -1;
             e.fire -= ds*factor;
             if (e.fire <= 0){
-              e.fire = Math.max(.65, 1.6 - world*.08);
+              e.fire = Math.max(.65, 1.5 - world*.07);
               for (let j = 0; j < 7; j++){
                 const a = Math.PI*(.1 + j*.8/6);
-                bad.push({id:'e'+Math.random(), x:e.x, y:e.y+35, vx:Math.cos(a)*220, vy:Math.sin(a)*220, r:7});
+                bad.push({id:'e'+Math.random(), x:e.x, y:e.y+35, vx:Math.cos(a)*230, vy:Math.sin(a)*230, r:7});
               }
-              aimed(e.x, e.y+30, 245 + world*8);
+              aimed(e.x, e.y+32, 250 + world*8);
             }
           }
         } else {
           e.y += e.vy*ds*factor;
-          if (e.type === 'zig') e.x = clamp(e.x + Math.sin(e.t*5)*150*ds, 25, W-25);
+          if (e.type === 'zig') e.x = clamp(e.x + Math.sin(e.t*5.5)*160*ds, 25, W-25);
           if (e.type === 'tank'){
             e.fire -= ds*factor;
-            if (e.fire <= 0 && e.y > 20){ e.fire = 1.5; aimed(e.x, e.y); }
+            if (e.fire <= 0 && e.y > 20){ e.fire = 1.4; aimed(e.x, e.y); }
           }
         }
         if (e.y > H+65){ enemies.splice(i,1); continue; }
         if (Math.hypot(e.x-player.x, e.y-player.y) < e.r*.7 + 13){
-          if (e.type !== 'boss'){ enemies.splice(i,1); burst(e.x, e.y, '#ffa765', 15); }
+          if (e.type !== 'boss'){ enemies.splice(i,1); burst(e.x, e.y, '#ff7a00', 16); }
           hurt();
         }
       }
@@ -1044,7 +1168,7 @@
       }
     }
 
-    /* رصاص اللاعب المحلي — التصادم */
+    /* طلقات اللاعب واصطداماتها */
     for (let i = shots.length-1; i >= 0; i--){
       const b = shots[i];
       b.life -= ds;
@@ -1052,8 +1176,8 @@
         const t = nearest(b.x, b.y);
         if (t){
           const dx = t.x-b.x, dy = t.y-b.y, d = Math.hypot(dx,dy)||1;
-          b.vx += (dx/d*570 - b.vx)*Math.min(1,ds*4);
-          b.vy += (dy/d*570 - b.vy)*Math.min(1,ds*4);
+          b.vx += (dx/d*600 - b.vx)*Math.min(1,ds*4.5);
+          b.vy += (dy/d*600 - b.vy)*Math.min(1,ds*4.5);
         }
       }
       b.x += b.vx*ds; b.y += b.vy*ds;
@@ -1065,13 +1189,11 @@
         if (b.hit.has(e.id)) continue;
         if (Math.hypot(e.x-b.x, e.y-b.y) < e.r + b.r){
           b.hit.add(e.id);
-          burst(b.x, b.y, '#b7f6ff', 3);
+          burst(b.x, b.y, '#00e5ff', 4);
           if (net.online){
-            e.flash = .12;
-            netSend({ t:'hit', id:e.id, dmg:b.damage });
+            e.flash = 0.12; netSend({ t:'hit', id:e.id, dmg:b.damage });
           } else {
-            e.hp -= b.damage;
-            if (e.hp <= 0) kill(j);
+            e.hp -= b.damage; if (e.hp <= 0) kill(j);
           }
           if (b.kind !== 'laser'){ shots.splice(i,1); removed = true; }
           break;
@@ -1080,63 +1202,45 @@
       if (removed) continue;
     }
 
-    /* القوى الساقطة */
+    /* المكافآت الساقطة */
     for (let i = drops.length-1; i >= 0; i--){
       const a = drops[i];
-      a.t += ds; a.y += 95*ds;
-      a.x += Math.sin(a.t*4)*22*ds;
+      a.t += ds; a.y += 105*ds;
+      a.x += Math.sin(a.t*4)*25*ds;
       if (a.y > H+30){ drops.splice(i,1); continue; }
-      if (Math.hypot(a.x-player.x, a.y-player.y) < 33 + save.upgrades.magnet*13){
+      if (Math.hypot(a.x-player.x, a.y-player.y) < 35 + save.upgrades.magnet*14){
         drops.splice(i,1);
         if (a.kind === 'life')   player.hp = Math.min(player.maxHp, player.hp+1);
         if (a.kind === 'power')  player.power = Math.min(3, player.power+1);
         if (a.kind === 'shield') player.shield = 9;
         if (a.kind === 'slow')   slow = 7;
         if (a.kind === 'bomb')   player.bombs = Math.min(5, player.bombs+1);
-        gain(8);
-        toast({life:'❤️ حياة', power:'⚡ تعزيز', shield:'🛡️ درع', slow:'❄️ إبطاء', bomb:'💣 قنبلة'}[a.kind]);
-        tone(1100, .13);
+        gain(8); vibrate(25);
+        toast({life:'❤️ تعزيز صحة', power:'⚡ ترقية النيران', shield:'🛡️ درع بلازمي', slow:'❄️ تجميد زمني', bomb:'💣 قنبلة ذكية'}[a.kind]);
+        tone(1150, .14);
       }
     }
 
-    /* جزيئات ونجوم */
+    /* تحديث الجزيئات والنجوم */
     for (let i = particles.length-1; i >= 0; i--){
       const a = particles[i];
       a.life -= ds; a.x += a.vx*ds; a.y += a.vy*ds;
-      a.vx *= .97; a.vy *= .97;
+      a.vx *= 0.96; a.vy *= 0.96;
       if (a.life <= 0) particles.splice(i,1);
     }
-    for (const s of stars){
-      s.y += (50 + s.z*140)*ds;
-      if (s.y > H){ s.y = 0; s.x = rnd(0,W); }
+    for (const layer of starLayers){
+      for (const s of layer){
+        s.y += s.v * ds;
+        if (s.y > H){ s.y = 0; s.x = rnd(0, W); }
+      }
     }
 
     hud();
   }
 
-  function ship(x,y,size,color,enemy=false){
-    ctx.save(); ctx.translate(x,y); ctx.scale(size/70, size/70);
-    ctx.fillStyle = color; ctx.strokeStyle = '#e0f6ff'; ctx.lineWidth = 2;
-    ctx.beginPath();
-    if (enemy){
-      ctx.moveTo(0,30); ctx.lineTo(-30,-14); ctx.lineTo(-8,-9);
-      ctx.lineTo(0,-28); ctx.lineTo(8,-9); ctx.lineTo(30,-14);
-    } else {
-      ctx.moveTo(0,-34); ctx.lineTo(9,-11); ctx.lineTo(32,12);
-      ctx.lineTo(32,20); ctx.lineTo(8,11); ctx.lineTo(7,28);
-      ctx.lineTo(-7,28); ctx.lineTo(-8,11); ctx.lineTo(-32,20);
-      ctx.lineTo(-32,12); ctx.lineTo(-9,-11);
-    }
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.restore();
-  }
-
-  function ownSprite(){ return net.online && !net.host ? 'player2' : 'player'; }
-  function otherSprite(){ return net.host ? 'player2' : 'player'; }
-  function ownBulletSprite(){ return net.online && !net.host ? 'bullet2' : 'bullet'; }
-  function ownFallbackColor(){ return net.online && !net.host ? '#ff8b5a' : '#4db7ff'; }
-
-  /* ★ تخزين تدرّج الخلفية (توفير إعادة الإنشاء كل إطار) ★ */
+  /* =========================================================
+     محرك الرسوميات فائق التوهج (High-End Rendering)
+     ========================================================= */
   let bgCache = null, bgCacheWorld = -1;
   function getBg(){
     if (bgCacheWorld === world && bgCache) return bgCache;
@@ -1152,42 +1256,63 @@
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.fillStyle = getBg();
     ctx.fillRect(0,0,W,H);
-    if (world === 1 && imgs.background?.ok) pic('background', W/2, H/2, W, H);
+
+    /* خلفية الفضاء الاحترافية */
+    if (imgs.background?.ok) {
+      ctx.globalAlpha = 0.85;
+      pic('background', W/2, H/2, W, H);
+      ctx.globalAlpha = 1.0;
+    }
 
     ctx.save();
-    if (save.settings.shake && shake > .2){
+    if (save.settings.shake && shake > 0.2){
       ctx.translate(rnd(-shake,shake), rnd(-shake,shake));
-      shake *= .86;
+      shake *= 0.88;
     }
 
-    ctx.fillStyle = '#b9e6ff';
-    for (const s of (save.settings.stars ? stars : [])){
-      ctx.globalAlpha = .16 + s.z*.5;
-      ctx.fillRect(s.x, s.y, s.z*2, s.z*3);
+    /* رسم طبقات النجوم البارالاكس */
+    for (const layer of starLayers){
+      for (const s of layer){
+        ctx.fillStyle = '#bce6ff';
+        ctx.globalAlpha = s.a;
+        ctx.fillRect(s.x, s.y, s.s, s.s*1.6);
+      }
     }
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = 1.0;
 
+    /* رسم حلقات الصدمة الانفجارية (Shockwaves) */
+    for (const sw of shockwaves){
+      ctx.save();
+      ctx.strokeStyle = sw.color;
+      ctx.globalAlpha = sw.alpha;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(sw.x, sw.y, sw.r, 0, TAU);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    /* المكافآت والأشياء الساقطة مع توهج نيون */
     for (const a of drops){
-      ctx.save(); ctx.shadowBlur = 20; ctx.shadowColor = '#fff9a0';
+      ctx.save();
+      ctx.shadowBlur = 18; ctx.shadowColor = '#ffe259';
       const key = a.kind === 'life' ? 'life' : a.kind === 'power' ? 'power' : 'missing';
       if (!pic(key, a.x, a.y, 48, 48)){
-        ctx.fillStyle = {life:'#ff5d7d',power:'#ffd76c',shield:'#62d9ff',slow:'#9de8ff',bomb:'#ff9e4e'}[a.kind];
+        ctx.fillStyle = {life:'#ff3366',power:'#ffbe0b',shield:'#00e5ff',slow:'#9de8ff',bomb:'#ff7a00'}[a.kind];
         ctx.beginPath(); ctx.arc(a.x, a.y, 20, 0, TAU); ctx.fill();
-        ctx.font = 'bold 23px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#091325';
+        ctx.fillStyle = '#061021'; ctx.font = '900 20px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText({life:'♥',power:'⚡',shield:'◆',slow:'❄',bomb:'●'}[a.kind], a.x, a.y);
       }
       ctx.restore();
     }
 
+    /* الأعداء والزعماء مع وميض الهجوم */
     for (const e of enemies){
-      const sz = e.type === 'boss' ? 172 : e.type === 'tank' ? 92 : 69;
+      const sz = e.type === 'boss' ? 180 : e.type === 'tank' ? 96 : 72;
       ctx.save();
-      if (e.flash > 0) ctx.filter = 'brightness(2.2)';
-      if (!pic(e.type, e.x, e.y, sz, sz, e.type==='zig'?Math.sin(e.t*5)*.2:0)){
-        ship(e.x, e.y, sz,
-          e.type==='boss'?'#e84d5a':e.type==='tank'?'#cf493a':e.type==='zig'?'#aa57f6':'#ffab3b', true);
-      }
+      if (e.flash > 0) ctx.filter = 'brightness(2.4) drop-shadow(0 0 10px #ff3366)';
+      pic(e.type, e.x, e.y, sz, sz, e.type==='zig'?Math.sin(e.t*5)*.2:0);
       ctx.restore();
     }
 
@@ -1195,74 +1320,64 @@
     $('bossBar').style.display = bossEnemy && !bossEnemy.enter ? 'block' : 'none';
     if (bossEnemy) $('bossFill').style.width = 100*Math.max(0, bossEnemy.hp/bossEnemy.max) + '%';
 
+    /* رصاص الأعداء بتأثير Blend Mode متوهج */
     ctx.globalCompositeOperation = 'lighter';
     for (const b of bad){
-      if (!pic('ebullet', b.x, b.y, 26, 26)){
-        ctx.fillStyle = '#ff7b52';
+      if (!pic('ebullet', b.x, b.y, 28, 28)){
+        ctx.shadowBlur = 10; ctx.shadowColor = '#ff3366';
+        ctx.fillStyle = '#ff3366';
         ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, TAU); ctx.fill();
       }
     }
+
+    /* رصاص الحلفاء عبر الشبكة */
     for (const b of remoteShots){
-      const rot = Math.atan2(b.vy, b.vx) + Math.PI/2;
-      ctx.shadowBlur = 12; ctx.shadowColor = '#ffd86b';
-      if (b.kind === 'laser'){
-        ctx.fillStyle = '#ffd76c';
-        ctx.fillRect(b.x-5, b.y-26, 10, 52);
-      } else if (b.kind === 'missile'){
-        ctx.fillStyle = '#ffb85c';
-        ctx.beginPath(); ctx.arc(b.x, b.y, 9, 0, TAU); ctx.fill();
-      } else if (b.kind === 'fire'){
-        ctx.fillStyle = '#ffb04d';
-        ctx.beginPath(); ctx.arc(b.x, b.y, 9, 0, TAU); ctx.fill();
-      } else if (!pic(b.sprite, b.x, b.y, 18, 38, rot)){
-        ctx.fillStyle = '#ffcf6c';
-        ctx.fillRect(b.x-3, b.y-14, 6, 27);
-      }
+      ctx.shadowBlur = 14; ctx.shadowColor = '#ffbe0b';
+      pic(b.sprite, b.x, b.y, 20, 42, Math.atan2(b.vy, b.vx) + Math.PI/2);
     }
-    ctx.shadowBlur = 0;
+
+    /* رصاص اللاعب الرئيسي بتوهج ليزري أزرق نيون */
     for (const b of shots){
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = b.kind === 'fire' ? '#ff6d22' : '#6de9ff';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = b.kind === 'fire' ? '#ff7a00' : '#00e5ff';
       if (b.kind === 'laser'){
-        ctx.fillStyle = '#71edff';
-        ctx.fillRect(b.x-5, b.y-26, 10, 52);
+        ctx.fillStyle = '#00e5ff';
+        ctx.fillRect(b.x-6, b.y-32, 12, 64);
       } else if (b.kind === 'missile'){
-        ctx.fillStyle = '#ffdc82';
-        ctx.beginPath(); ctx.arc(b.x, b.y, 9, 0, TAU); ctx.fill();
-      } else if (b.kind === 'fire'){
-        ctx.fillStyle = '#ff7536';
-        ctx.beginPath(); ctx.arc(b.x, b.y, 9, 0, TAU); ctx.fill();
-      } else if (!pic(ownBulletSprite(), b.x, b.y, 18, 38, Math.atan2(b.vy,b.vx)+Math.PI/2)){
-        ctx.fillStyle = '#86edff';
-        ctx.fillRect(b.x-3, b.y-14, 6, 27);
+        pic('bullet2', b.x, b.y, 20, 42, Math.atan2(b.vy,b.vx)+Math.PI/2);
+      } else if (!pic(net.online && !net.host ? 'bullet2':'bullet', b.x, b.y, 20, 42, Math.atan2(b.vy,b.vx)+Math.PI/2)){
+        ctx.fillStyle = '#00e5ff'; ctx.fillRect(b.x-3, b.y-16, 6, 32);
       }
     }
     ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = 'source-over';
 
+    /* رسم طائرات الفريق في الأونلاين */
     if (net.online){
       for (const [id,p] of net.players){
         if (id === net.myId || !p.alive) continue;
-        if (!pic(otherSprite(), p.x, p.y, 80, 80)){
-          ship(p.x, p.y, 80, net.host ? '#ff8b5a' : '#4db7ff');
-        }
-        ctx.strokeStyle = '#7cff9c'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(p.x, p.y, 42, 0, TAU); ctx.stroke();
-        ctx.fillStyle = '#a6ffbe';
-        ctx.font = 'bold 11px system-ui, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(p.name || 'لاعب', p.x, p.y - 52);
+        pic(net.host ? 'player2' : 'player', p.x, p.y, 82, 82);
+        ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 44, 0, TAU); ctx.stroke();
+        ctx.fillStyle = '#86efac';
+        ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(p.name || 'حليف', p.x, p.y - 52);
       }
     }
 
-    if (player.alive && state !== 'over' && (player.inv <= 0 || Math.floor(performance.now()/90)%2)){
-      if (!pic(ownSprite(), player.x, player.y, 80, 80)) ship(player.x, player.y, 80, ownFallbackColor());
+    /* رسم طائرة اللاعب والدروع */
+    if (player.alive && state !== 'over' && (player.inv <= 0 || Math.floor(performance.now()/80)%2)){
+      pic(net.online && !net.host ? 'player2' : 'player', player.x, player.y, 84, 84);
       if (player.shield > 0){
-        ctx.strokeStyle = '#73eaff'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(player.x, player.y, 43, 0, TAU); ctx.stroke();
+        ctx.save();
+        ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3;
+        ctx.shadowBlur = 20; ctx.shadowColor = '#00e5ff';
+        ctx.beginPath(); ctx.arc(player.x, player.y, 46, 0, TAU); ctx.stroke();
+        ctx.restore();
       }
     }
 
+    /* جزيئات الانفجارات والبلازما */
     ctx.globalCompositeOperation = 'lighter';
     for (const a of particles){
       ctx.globalAlpha = Math.max(0, a.life/a.max);
@@ -1274,73 +1389,34 @@
     ctx.restore();
   }
 
+  /* شاشة البداية الاحترافية عند تحميل الأصول */
   function renderLoading(){
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    const bg = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,H*.75);
-    bg.addColorStop(0,'#0d1f3d'); bg.addColorStop(.5,'#071328'); bg.addColorStop(1,'#030815');
-    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-    for (const s of stars){
-      s.y += s.z*1.4;
-      if (s.y > H){ s.y = 0; s.x = Math.random()*W; }
-      ctx.globalAlpha = .15+s.z*.55; ctx.fillStyle = '#b9e6ff';
-      ctx.fillRect(s.x, s.y, s.z*2, s.z*3);
-    }
-    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#030815'; ctx.fillRect(0,0,W,H);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.save();
-    ctx.shadowColor = '#4fb8ff'; ctx.shadowBlur = 40;
-    ctx.fillStyle = '#83dfff'; ctx.font = 'bold 76px system-ui, sans-serif';
-    ctx.fillText('✈️', W/2, H/2-175); ctx.restore();
-    const tg = ctx.createLinearGradient(W/2-130,0,W/2+130,0);
-    tg.addColorStop(0,'#7fe4ff'); tg.addColorStop(.5,'#b58cff'); tg.addColorStop(1,'#ff7fd0');
-    ctx.fillStyle = tg; ctx.font = 'bold 28px system-ui, sans-serif';
-    ctx.fillText('حرب الطائرات', W/2, H/2-105);
-    ctx.fillStyle = '#83dfff'; ctx.font = 'bold 18px system-ui, sans-serif';
-    ctx.fillText('— الأساطير —', W/2, H/2-72);
+    ctx.font = 'bold 28px sans-serif'; ctx.fillStyle = '#00e5ff';
+    ctx.fillText('جاري تحميل الترسانة الكونية...', W/2, H/2 - 20);
     const prog = imgTotal > 0 ? imgLoadedCount/imgTotal : 0;
-    const barW = 280, barH = 18, barX = W/2-barW/2, barY = H/2+40;
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(barX-4,barY-4,barW+8,barH+8,12); else ctx.rect(barX-4,barY-4,barW+8,barH+8);
-    ctx.fill();
-    ctx.fillStyle = '#12233d';
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(barX,barY,barW,barH,9); else ctx.rect(barX,barY,barW,barH);
-    ctx.fill();
-    if (prog > 0){
-      const f = ctx.createLinearGradient(barX,0,barX+barW,0);
-      f.addColorStop(0,'#4fb8ff'); f.addColorStop(.5,'#8a7bff'); f.addColorStop(1,'#ff7fd0');
-      ctx.fillStyle = f;
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(barX,barY,barW*prog,barH,9); else ctx.rect(barX,barY,barW*prog,barH);
-      ctx.fill();
-    }
-    ctx.strokeStyle = '#7fe4ff'; ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(barX,barY,barW,barH,9); else ctx.rect(barX,barY,barW,barH);
-    ctx.stroke();
-    ctx.fillStyle = '#e6f3ff'; ctx.font = 'bold 15px system-ui, sans-serif';
-    ctx.fillText('جاري التحميل... ' + Math.floor(prog*100) + '%', W/2, barY+barH+32);
-    ctx.fillStyle = '#6c88a8'; ctx.font = '12px system-ui, sans-serif';
-    ctx.fillText('(' + imgLoadedCount + '/' + imgTotal + ' صور)', W/2, barY+barH+56);
+    ctx.fillStyle = '#081730';
+    ctx.fillRect(W/2-120, H/2+20, 240, 14);
+    ctx.fillStyle = '#00e5ff';
+    ctx.fillRect(W/2-120, H/2+20, 240*prog, 14);
   }
 
-  /* ★★★ الحلقة — تتوقف عند إخفاء الصفحة ★★★ */
+  /* الحلقة الأساسية (Frame Loop) */
   let last = 0, mainShown = false;
   function loop(ts){
     requestAnimationFrame(loop);
     if (!allImgsReady){ last = ts; renderLoading(); return; }
     if (!mainShown){ mainShown = true; main(); }
-    if (document.hidden){ last = ts; return; }   /* ★ توفير المعالج */
-
+    if (document.hidden){ last = ts; return; }
     let dt = Math.min(40, ts - (last||ts));
     last = ts;
     if (state === 'play') update(dt);
-    else for (const s of stars){ s.y += s.z*.35; if (s.y > H) s.y = 0; }
     render();
   }
 
-  /* الإدخال */
+  /* إدخال اللمس للأندرويد مع نعومة استجابة عالية */
   let dragging = false, sx = 0, sy = 0, px = 0, py = 0;
   const keys = {};
   function point(e){
@@ -1357,7 +1433,7 @@
   cv.onpointermove = e => {
     if (!dragging || state !== 'play') return;
     const a = point(e);
-    const sens = {slow:.7, normal:1.1, fast:1.5}[save.settings.controls] || 1.1;
+    const sens = {slow:0.8, normal:1.15, fast:1.6}[save.settings.controls] || 1.15;
     player.tx = clamp(px + (a.x-sx)*sens, 25, W-25);
     player.ty = clamp(py + (a.y-sy)*sens, 110, H-95);
   };
@@ -1366,13 +1442,7 @@
   addEventListener('keydown', e => {
     keys[e.code] = true;
     if (['Space','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) e.preventDefault();
-    if ((e.code === 'KeyP' || e.code === 'Escape') && state === 'play') pause();
     if (e.code === 'Space' && state === 'play') bomb();
-    if (e.code === 'KeyM') toggleMic();
-    if (/^Digit[1-6]$/.test(e.code)){
-      const i = +e.code.slice(-1)-1;
-      if (save.unlocked.includes(i)){ weapon = i; buildBar(); }
-    }
   });
   addEventListener('keyup', e => keys[e.code] = false);
 
@@ -1380,11 +1450,6 @@
   $('sound').onclick = () => { sound = !sound; $('sound').textContent = sound ? '🔊' : '🔇'; };
   $('micBtn').onclick = toggleMic;
   $('bombBtn').onclick = bomb;
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && state === 'play' && !net.online) pause();
-    last = performance.now();
-  });
 
   persist();
   requestAnimationFrame(loop);
