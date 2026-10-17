@@ -1,0 +1,18 @@
+{
+  "name": "حرب الطائرات: الأساطير",
+  "short_name": "حرب الطائرات",
+  "description": "لعبة حرب الطائرات والأساطير الجماعية أونلاين 400 مستوى",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#030815",
+  "theme_color": "#030815",
+  "icons": [
+    {
+      "src": "images/player.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
