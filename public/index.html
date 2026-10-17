@@ -11,7 +11,6 @@
 .roomcode{font-size:34px;letter-spacing:10px;color:#ffd76c;font-weight:900;text-shadow:0 0 20px #ffc94d99;margin:8px 0}
 .badge{display:inline-block;background:#2a7a4f;color:#c9ffd9;padding:3px 9px;border-radius:20px;font-size:11px;margin:0 4px}
 .pill.net{border-color:#6dff9d55;color:#9dffb7}
-#micBtn{background:#132b51dd;border:1px solid #4bbaff77}
 #micBtn.on{background:#1d8348!important;border-color:#4bff7c!important;box-shadow:0 0 12px #4bff7c99}
 #remoteAudio{display:none}
 </style>
@@ -72,14 +71,16 @@
   }
   addEventListener('resize', resize); resize();
 
-  /* ★★★ الصور ★★★ */
+  /* =========================================================
+     الصور
+     ========================================================= */
   const files = {
     player:'player.png',
-    player2:'player2.png',     /* ← طائرة اللاعب الثاني (الضيف) */
+    player2:'player2.png',
     grunt:'enemy_grunt.png', zig:'enemy_zig.png',
     tank:'enemy_tank.png', boss:'boss.png',
     bullet:'bullet.png',
-    bullet2:'bullet2.png',     /* ← طلقة اللاعب الثاني (الضيف) */
+    bullet2:'bullet2.png',
     ebullet:'ebullet.png', life:'powerup_life.png',
     power:'powerup_power.png', background:'background.png'
   };
@@ -105,6 +106,9 @@
     return true;
   }
 
+  /* =========================================================
+     الأسلحة والعوالم
+     ========================================================= */
   const WEAP = [
     ['🔫','رشاش','machine','رصاص متواصل سريع'],
     ['🚀','صواريخ','missile','صواريخ تتبع'],
@@ -121,6 +125,9 @@
   });
   const today = () => new Date().toLocaleDateString('en-CA');
 
+  /* =========================================================
+     الحفظ
+     ========================================================= */
   let save = {
     coins:0, best:0, unlocked:[0], playerName:'لاعب',
     upgrades:{damage:0, armor:0, magnet:0},
@@ -137,6 +144,9 @@
   save.progress = Math.max(0, Math.min(400, Number(save.progress)||0));
   save.settings = {sound:true, volume:65, particles:'medium', shake:true, stars:true, controls:'normal', ...(save.settings||{})};
 
+  /* =========================================================
+     حالة اللعبة
+     ========================================================= */
   let selectedLevel = Math.min(399, save.progress);
   let level = 1, worldIndex = 0, levelDuration = 28;
   let state = 'menu', score = 0, earned = 0, kills = 0, world = 1;
@@ -147,8 +157,10 @@
   let audio = null;
 
   let enemies = [], shots = [], bad = [], drops = [], particles = [];
-  const remoteShots = [];  /* ★ رصاص اللاعب الآخر */
-  const stars = Array.from({length:90},()=>({x:rnd(0,W),y:rnd(0,H),z:rnd(.3,1.4)}));
+  const remoteShots = [];
+  /* ★ تقليل عدد النجوم على الأجهزة الضعيفة */
+  const starCount = (navigator.hardwareConcurrency || 4) > 4 ? 90 : 50;
+  const stars = Array.from({length:starCount},()=>({x:rnd(0,W),y:rnd(0,H),z:rnd(.3,1.4)}));
 
   const player = {x:W/2,y:H-155,tx:W/2,ty:H-155,hp:3,maxHp:3,inv:0,shield:0,power:1,fire:0,bombs:2,alive:true};
 
@@ -157,7 +169,9 @@
      ========================================================= */
   const net = {
     ws: null, connected: false, roomCode: '', myId: '', hostId: '', host: false,
-    players: new Map(), online: false, sendT: 0
+    players: new Map(), online: false, sendT: 0,
+    pendingBullets: [],          /* ★ طلقات مجمّعة للإرسال */
+    lastHurtSent: 0
   };
 
   function netConnect(cb){
@@ -185,8 +199,7 @@
         net.host = m.hostId === m.id;
         net.players = new Map();
         m.players.forEach(p => net.players.set(p.id, p));
-        updateMicUI();
-        lobbyScreen(); break;
+        updateMicUI(); lobbyScreen(); break;
       case 'lobby':
         net.players = new Map();
         m.players.forEach(p => net.players.set(p.id, p));
@@ -196,7 +209,7 @@
         break;
       case 'start': startOnline(m.levelIndex); break;
       case 'S': applySnapshot(m); break;
-      case 'shoot': onRemoteShoot(m); break;   /* ★ رصاص اللاعب الآخر */
+      case 'shoot': onRemoteShoot(m); break;
       case 'kill': onKill(m.id); break;
       case 'hp': onHpMsg(m); break;
       case 'boss': bossActive = true; toast('⚠️ ظهر الزعيم!'); break;
@@ -204,10 +217,9 @@
       case 'left':
         net.players.delete(m.id);
         if (state === 'play' || state === 'lobby') toast('🚪 غادر أحد اللاعبين');
-        cleanupRTC();
-        break;
+        cleanupRTC(); break;
       case 'err': toast(m.msg); break;
-      case 'rtc-desc': handleRTCDesc(m); break;   /* ★ إشارات الصوت */
+      case 'rtc-desc': handleRTCDesc(m); break;
       case 'rtc-ice':  handleRTCIce(m);  break;
     }
   }
@@ -249,12 +261,13 @@
     }
   }
 
-  /* ★★★ استقبال رصاص اللاعب الآخر ★★★ */
   function onRemoteShoot(m){
     const sprite = m.owner === net.hostId ? 'bullet' : 'bullet2';
     for (const b of m.bullets){
       remoteShots.push({ ...b, owner: m.owner, sprite, life: 2.5 });
     }
+    /* حد أمان للذاكرة */
+    if (remoteShots.length > 300) remoteShots.splice(0, remoteShots.length - 300);
   }
 
   function onHpMsg(m){
@@ -280,7 +293,7 @@
   function netHurt(){
     if (!player.alive || player.inv > 0) return;
     const now = Date.now();
-    if (now - (net.lastHurtSent||0) < 600) return;
+    if (now - net.lastHurtSent < 600) return;
     net.lastHurtSent = now;
     player.inv = 1.0;
     netSend({ t:'hurt' });
@@ -289,7 +302,7 @@
   }
 
   /* =========================================================
-     ★★★ الصوت ★★★
+     الصوت
      ========================================================= */
   function tone(f=440, d=.08){
     if (!sound) return;
@@ -308,20 +321,35 @@
   }
 
   /* =========================================================
-     ★★★ WebRTC — دردشة صوتية ★★★
+     ★★★ WebRTC — دردشة صوتية (مع TURN لليمن) ★★★
      ========================================================= */
   let peerConn = null, localStream = null, micOn = false;
   let makingOffer = false, ignoreOffer = false, isSettingRemoteAnswerPending = false;
-  const polite = () => !net.host;   /* الضيف مهذب (يتنازل عند التعارض) */
+  const polite = () => !net.host;
   const remoteAudio = document.getElementById('remoteAudio');
+
+  /* ★ بيانات TURN — احصل على بياناتك الخاصة من metered.ca لضمان الاستقرار
+     البيانات هنا تجريبية عامة وقد تتوقف عن العمل. المسار الأساسي: turns:443 */
+  const ICE_SERVERS = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'turn:standard.relay.metered.ca:80',
+      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' },
+    { urls: 'turn:standard.relay.metered.ca:80?transport=tcp',
+      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' },
+    { urls: 'turn:standard.relay.metered.ca:443',
+      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' },
+    /* ★ الأهم لليمن: TURN عبر TLS على 443 يشبه HTTPS */
+    { urls: 'turns:standard.relay.metered.ca:443?transport=tcp',
+      username: '380206f8f45c439e995caf4b', credential: 'hvuSwyB2WIWNhG4M' }
+  ];
 
   function ensurePC(){
     if (peerConn) return;
     peerConn = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
-      ]
+      iceServers: ICE_SERVERS,
+      iceTransportPolicy: 'all',
+      bundlePolicy: 'max-bundle'
     });
 
     peerConn.onicecandidate = ({ candidate }) => {
@@ -340,10 +368,22 @@
       } catch (e) { console.error(e); }
       finally { makingOffer = false; }
     };
-    peerConn.onconnectionstatechange = () => {
+    peerConn.onconnectionstatechange = async () => {
       const s = peerConn.connectionState;
-      if (s === 'connected') toast('🎤 الصوت متصل');
-      if (s === 'failed') toast('⚠️ فشل الاتصال الصوتي');
+      if (s === 'connected') {
+        try {
+          const stats = await peerConn.getStats();
+          let usedRelay = false;
+          stats.forEach(r => {
+            if (r.type === 'candidate-pair' && r.state === 'succeeded') {
+              const local = stats.get(r.localCandidateId);
+              if (local && local.candidateType === 'relay') usedRelay = true;
+            }
+          });
+          toast(usedRelay ? '🎤 الصوت متصل عبر TURN (يعمل في اليمن)' : '🎤 الصوت متصل مباشرة');
+        } catch(_) { toast('🎤 الصوت متصل'); }
+      }
+      if (s === 'failed') toast('⚠️ فشل الاتصال الصوتي — أعد المحاولة');
     };
   }
 
@@ -417,23 +457,31 @@
   }
 
   /* =========================================================
-     ★★★ HUD والقوائم ★★★
+     ★★★ HUD (مع كاش لتقليل إعادة الرسم) ★★★
      ========================================================= */
+  const hudCache = {};
+  function setText(id, val){
+    if (hudCache[id] === val) return;
+    hudCache[id] = val;
+    const el = $(id);
+    if (el) el.textContent = val;
+  }
+
   function toast(s){ $('toast').textContent = s; $('toast').style.opacity = 1; toastTime = 2; }
 
   function hud(){
-    $('score').textContent = score;
-    $('coins').textContent = save.coins;
-    $('life').textContent = player.alive ? player.hp + '/' + player.maxHp : '💀';
-    $('shield').textContent = Math.ceil(player.shield);
-    $('world').textContent = world;
-    $('levelHUD').textContent = level;
-    $('combo').textContent = combo;
-    $('bombBtn').textContent = '💣 ' + player.bombs;
+    setText('score', score);
+    setText('coins', save.coins);
+    setText('life', player.alive ? player.hp + '/' + player.maxHp : '💀');
+    setText('shield', Math.ceil(player.shield));
+    setText('world', world);
+    setText('levelHUD', level);
+    setText('combo', combo);
+    setText('bombBtn', '💣 ' + player.bombs);
     $('bombBtn').style.display = state === 'play' ? 'block' : 'none';
     if (net.online){
       $('netPill').style.display = 'block';
-      $('roomLabel').textContent = net.roomCode;
+      setText('roomLabel', net.roomCode);
     } else $('netPill').style.display = 'none';
   }
 
@@ -473,7 +521,8 @@
   function onlineMenu(){
     menu('🌐 اللعب الجماعي + 🎙️', `
       <p>العب أنت وصديقك معاً بصوت حي. أنشئ غرفة وشارك الرمز، أو انضم برمز صديقك.</p>
-      <p class="tiny">🛩️ المضيف: طائرة زرقاء · الضيف: طائرة ثانية خاصة.</p>
+      <p class="tiny">🛩️ المضيف: طائرة زرقاء · الضيف: طائرة ثانية خاصة.<br>
+      🎙️ الصوت يعمل عبر TURN TLS — مدعوم في اليمن.</p>
       <div class="setting"><label>اسمك</label>
         <input id="pname" value="${save.playerName||'لاعب'}" maxlength="12" style="padding:8px;border-radius:8px;border:1px solid #3d6f96;background:#091c36;color:#fff;width:130px;text-align:center">
       </div>
@@ -533,6 +582,7 @@
 
   function startOnline(index){
     net.online = true;
+    net.pendingBullets = [];
     selectedLevel = index;
     world = Math.floor(index/20)+1; worldIndex = world-1;
     level = index%20+1;
@@ -754,7 +804,7 @@
     return best;
   }
 
-  /* ★★★ الإطلاق — يبث للاعب الآخر ★★★ */
+  /* ★★★ الإطلاق — يجمع الطلقات في net.pendingBullets ★★★ */
   function fire(){
     const x = player.x, y = player.y-29;
     const damage = 1 + save.upgrades.damage*.35;
@@ -773,14 +823,16 @@
       }
     }
 
-    /* إضافة محلية للعرض والضرر */
+    /* إضافة محلية للتصادم والرسم */
     for (const b of newBullets) addShot(b.x, b.y, b.vx, b.vy, b.dmg, b.kind, b.r);
 
-    /* بث للاعب الآخر (إن كان متصلاً) */
+    /* ★ تجميع للبث مع رسالة الموقع */
     if (net.online){
-      netSend({ t:'shoot', bullets: newBullets.map(b => ({
-        x:b.x, y:b.y, vx:b.vx, vy:b.vy, kind:b.kind, r:b.r
-      })) });
+      for (const b of newBullets){
+        net.pendingBullets.push({ x:b.x, y:b.y, vx:b.vx, vy:b.vy, kind:b.kind, r:b.r });
+      }
+      if (net.pendingBullets.length > 200)
+        net.pendingBullets.splice(0, net.pendingBullets.length - 200);
     }
     tone(weapon===1?330:950, .035);
   }
@@ -867,7 +919,7 @@
   }
 
   /* =========================================================
-     ★★★ التحديث ★★★
+     التحديث
      ========================================================= */
   function update(dt){
     const ds = dt/1000;
@@ -899,7 +951,6 @@
     }
 
     if (net.online){
-      /* تحرك ناعم للأعداء */
       for (const e of enemies){
         const k = Math.min(1, ds*14);
         e.x += (e.tx - e.x)*k;
@@ -907,18 +958,15 @@
         e.t += ds;
         if (e.flash > 0) e.flash -= ds;
       }
-      /* رصاص الأعداء */
       for (let i = bad.length-1; i >= 0; i--){
         const b = bad[i];
         b.x += b.vx*ds; b.y += b.vy*ds;
         if (b.y > H+50 || b.y < -50 || b.x < -50 || b.x > W+50){ bad.splice(i,1); continue; }
         if (player.alive && Math.hypot(b.x-player.x, b.y-player.y) < b.r+13){ bad.splice(i,1); netHurt(); }
       }
-      /* تصادم مع الأجساد */
       if (player.alive) for (const e of enemies){
         if (Math.hypot(e.x-player.x, e.y-player.y) < e.r*.7 + 13) netHurt();
       }
-      /* ★ رصاص اللاعب الآخر — يتحرك محلياً ★ */
       for (let i = remoteShots.length-1; i >= 0; i--){
         const b = remoteShots[i];
         b.life -= ds;
@@ -933,14 +981,19 @@
         b.x += b.vx*ds; b.y += b.vy*ds;
         if (b.life <= 0 || b.y < -50 || b.y > H+50 || b.x < -50 || b.x > W+50) remoteShots.splice(i,1);
       }
-      /* إرسال الموقع */
+
+      /* ★★★ إرسال مجمّع كل 100 مللي ثانية ★★★ */
       net.sendT -= ds;
       if (net.sendT <= 0){
-        net.sendT = 0.06;
-        netSend({ t:'p', x:Math.round(player.x), y:Math.round(player.y) });
+        net.sendT = 0.10;
+        const msg = { t:'p', x:Math.round(player.x), y:Math.round(player.y) };
+        if (net.pendingBullets.length){
+          msg.shoot = net.pendingBullets;
+          net.pendingBullets = [];
+        }
+        netSend(msg);
       }
     } else {
-      /* فردي */
       if (!bossActive && !bossDone && time >= levelDuration) boss();
       if (bossDone){ finish(true); return; }
       if (!bossActive){
@@ -991,7 +1044,7 @@
       }
     }
 
-    /* ★★★ رصاص اللاعب — التصادم مع الأعداء (فردي وجماعي) ★★★ */
+    /* رصاص اللاعب المحلي — التصادم */
     for (let i = shots.length-1; i >= 0; i--){
       const b = shots[i];
       b.life -= ds;
@@ -1078,19 +1131,27 @@
     ctx.restore();
   }
 
-  /* ★★★ مساعدات الصور ★★★ */
   function ownSprite(){ return net.online && !net.host ? 'player2' : 'player'; }
   function otherSprite(){ return net.host ? 'player2' : 'player'; }
   function ownBulletSprite(){ return net.online && !net.host ? 'bullet2' : 'bullet'; }
   function ownFallbackColor(){ return net.online && !net.host ? '#ff8b5a' : '#4db7ff'; }
 
-  /* ★★★ الرسم ★★★ */
-  function render(){
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+  /* ★ تخزين تدرّج الخلفية (توفير إعادة الإنشاء كل إطار) ★ */
+  let bgCache = null, bgCacheWorld = -1;
+  function getBg(){
+    if (bgCacheWorld === world && bgCache) return bgCache;
     const theme = WORLD_THEMES[world-1];
     const bg = ctx.createLinearGradient(0,0,0,H);
-    bg.addColorStop(0, theme[1]); bg.addColorStop(1, theme[2]);
-    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+    bg.addColorStop(0, theme[1]);
+    bg.addColorStop(1, theme[2]);
+    bgCache = bg; bgCacheWorld = world;
+    return bg;
+  }
+
+  function render(){
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle = getBg();
+    ctx.fillRect(0,0,W,H);
     if (world === 1 && imgs.background?.ok) pic('background', W/2, H/2, W, H);
 
     ctx.save();
@@ -1134,7 +1195,6 @@
     $('bossBar').style.display = bossEnemy && !bossEnemy.enter ? 'block' : 'none';
     if (bossEnemy) $('bossFill').style.width = 100*Math.max(0, bossEnemy.hp/bossEnemy.max) + '%';
 
-    /* الرصاص */
     ctx.globalCompositeOperation = 'lighter';
     for (const b of bad){
       if (!pic('ebullet', b.x, b.y, 26, 26)){
@@ -1142,7 +1202,6 @@
         ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, TAU); ctx.fill();
       }
     }
-    /* ★ رصاص اللاعب الآخر ★ */
     for (const b of remoteShots){
       const rot = Math.atan2(b.vy, b.vx) + Math.PI/2;
       ctx.shadowBlur = 12; ctx.shadowColor = '#ffd86b';
@@ -1161,7 +1220,6 @@
       }
     }
     ctx.shadowBlur = 0;
-    /* ★ رصاص اللاعب المحلي ★ */
     for (const b of shots){
       ctx.shadowBlur = 12;
       ctx.shadowColor = b.kind === 'fire' ? '#ff6d22' : '#6de9ff';
@@ -1182,7 +1240,6 @@
     ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = 'source-over';
 
-    /* اللاعبون الآخرون */
     if (net.online){
       for (const [id,p] of net.players){
         if (id === net.myId || !p.alive) continue;
@@ -1198,7 +1255,6 @@
       }
     }
 
-    /* اللاعب */
     if (player.alive && state !== 'over' && (player.inv <= 0 || Math.floor(performance.now()/90)%2)){
       if (!pic(ownSprite(), player.x, player.y, 80, 80)) ship(player.x, player.y, 80, ownFallbackColor());
       if (player.shield > 0){
@@ -1269,11 +1325,14 @@
     ctx.fillText('(' + imgLoadedCount + '/' + imgTotal + ' صور)', W/2, barY+barH+56);
   }
 
+  /* ★★★ الحلقة — تتوقف عند إخفاء الصفحة ★★★ */
   let last = 0, mainShown = false;
   function loop(ts){
     requestAnimationFrame(loop);
     if (!allImgsReady){ last = ts; renderLoading(); return; }
     if (!mainShown){ mainShown = true; main(); }
+    if (document.hidden){ last = ts; return; }   /* ★ توفير المعالج */
+
     let dt = Math.min(40, ts - (last||ts));
     last = ts;
     if (state === 'play') update(dt);
@@ -1321,8 +1380,10 @@
   $('sound').onclick = () => { sound = !sound; $('sound').textContent = sound ? '🔊' : '🔇'; };
   $('micBtn').onclick = toggleMic;
   $('bombBtn').onclick = bomb;
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && state === 'play' && !net.online) pause();
+    last = performance.now();
   });
 
   persist();
