@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#030815">
+<meta name="theme-color" content="#030712">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,126 +14,210 @@
 :root{
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --neon-blue: #00e5ff;
-  --neon-red: #ff3366;
-  --neon-gold: #ffbe0b;
+  --cyan: #00f0ff;
+  --blue: #0077fe;
+  --red: #ff1e56;
+  --amber: #ffb703;
+  --green: #00f59b;
+  --panel-bg: rgba(6, 14, 30, 0.88);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
   margin:0;height:100%;overflow:hidden;
-  background:#02050f;color:#fff;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:#02050c;color:#fff;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   touch-action:none;user-select:none;
 }
 #stage{
   position:absolute;overflow:hidden;
   left:50%;top:50%;transform:translate(-50%,-50%);
-  background:#04091a;
-  box-shadow:0 0 50px rgba(0,229,255,0.15);
+  background:#030814;
+  box-shadow:0 0 70px rgba(0,240,255,0.2), inset 0 0 100px rgba(0,0,0,0.8);
 }
 canvas{display:block;width:100%;height:100%}
 
-/* HUD & UI */
+/* =========================================================
+   HUD — واجهة قمرة القيادة المستقبلية
+   ========================================================= */
 #hud{
   position:absolute;inset:0 0 auto;
-  padding:calc(var(--safe-top) + 10px) 12px 10px;
-  pointer-events:none;display:flex;
-  align-items:flex-start;justify-content:space-between;
-  gap:6px;font-size:12px;font-weight:900;
-  z-index:10;
+  padding:calc(var(--safe-top) + 12px) 12px 10px;
+  pointer-events:none;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:start;gap:8px;
+  font-size:12px;font-weight:900;
+  z-index:20;
 }
-#hud .col{display:grid;gap:6px}
-.pill{
-  background:rgba(8,20,44,0.72);
-  border:1px solid rgba(0,229,255,0.3);
+.hud-col{display:flex;flex-direction:column;gap:6px}
+.hud-col.center{align-items:center}
+.hud-col.end{align-items:flex-end}
+
+/* كبسولات المعلومات */
+.gauge-box{
+  background:var(--panel-bg);
+  border:1px solid rgba(0,240,255,0.35);
   border-radius:14px;
-  padding:6px 10px;white-space:nowrap;
-  backdrop-filter:blur(8px);
-  box-shadow:0 4px 15px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,229,255,0.1);
-  letter-spacing:.3px;
+  padding:6px 10px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.6), inset 0 0 12px rgba(0,240,255,0.08);
+  display:flex;align-items:center;gap:8px;
+  min-width:130px;
 }
-button{
-  font-family:inherit;cursor:pointer;border:0;color:white;font-weight:800;
-  transition:transform .12s ease, filter .12s ease;
+.gauge-bar-wrap{
+  flex:1;height:8px;background:rgba(255,255,255,0.1);
+  border-radius:6px;overflow:hidden;position:relative;
 }
-button:active{transform:scale(0.92);filter:brightness(1.2)}
-#hud button{
-  pointer-events:auto;
-  background:linear-gradient(135deg, rgba(19,43,81,0.85), rgba(12,24,48,0.85));
-  border:1px solid rgba(0,229,255,0.4);
-  border-radius:12px;padding:8px 10px;font-size:17px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+.gauge-bar{
+  height:100%;width:100%;border-radius:6px;
+  transition:width .2s cubic-bezier(0.2,0.8,0.2,1);
 }
+.gauge-bar.hp{background:linear-gradient(90deg, #ff1e56, #ff7536)}
+.gauge-bar.shield{background:linear-gradient(90deg, #00f0ff, #0077fe)}
+.gauge-bar.ally{background:linear-gradient(90deg, #00f59b, #00a8ff)}
+
+.badge-pill{
+  background:var(--panel-bg);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:12px;padding:5px 10px;
+  font-size:11.5px;letter-spacing:.4px;
+  backdrop-filter:blur(10px);
+  display:flex;align-items:center;gap:6px;
+}
+.badge-pill.gold{border-color:rgba(255,183,3,0.4);color:#ffd56b}
+.badge-pill.cyan{border-color:rgba(0,240,255,0.4);color:#92f6ff}
+.badge-pill.ally-tag{border-color:rgba(0,245,155,0.4);color:#9effd3}
+
+/* أزرار التحكم العلوي */
+.hud-btn-group{display:flex;gap:6px;pointer-events:auto}
+.hud-btn{
+  background:linear-gradient(145deg, rgba(16,36,70,0.9), rgba(8,18,38,0.9));
+  border:1px solid rgba(0,240,255,0.35);
+  border-radius:12px;padding:8px 11px;font-size:16px;color:#fff;
+  cursor:pointer;backdrop-filter:blur(10px);
+  box-shadow:0 4px 15px rgba(0,0,0,0.5);
+  transition:transform .12s, border-color .12s;
+}
+.hud-btn:active{transform:scale(0.9)}
+#micBtn.on{
+  background:linear-gradient(145deg, #059669, #022c22);
+  border-color:#00f59b;
+  box-shadow:0 0 16px rgba(0,245,155,0.6);
+}
+
+/* =========================================================
+   شريط الزعيم والأسلحة والقنابل
+   ========================================================= */
+#bossBox{
+  position:absolute;top:74px;left:8%;width:84%;
+  background:rgba(20,5,15,0.85);
+  border:1.5px solid rgba(255,30,86,0.6);
+  border-radius:12px;padding:4px 6px;
+  backdrop-filter:blur(10px);
+  display:none;z-index:22;
+  box-shadow:0 0 25px rgba(255,30,86,0.4);
+}
+#bossHeader{
+  display:flex;justify-content:space-between;
+  font-size:11px;font-weight:900;color:#ff92a8;margin-bottom:3px;padding:0 4px;
+}
+#bossBarInner{
+  height:10px;background:rgba(0,0,0,0.5);
+  border-radius:6px;overflow:hidden;
+}
+#bossFill{
+  height:100%;width:100%;
+  background:linear-gradient(90deg, #ff1e56, #ffb703);
+  transition:width .12s linear;
+}
+
 #weaponbar{
-  position:absolute;bottom:calc(var(--safe-bottom) + 12px);left:10px;right:10px;
-  display:flex;justify-content:center;gap:6px;pointer-events:auto;z-index:10;
+  position:absolute;bottom:calc(var(--safe-bottom) + 12px);left:8px;right:8px;
+  display:flex;justify-content:center;gap:6px;pointer-events:auto;z-index:22;
 }
 #weaponbar button{
-  min-width:44px;flex:1;max-width:68px;padding:8px 2px;
-  background:rgba(10,24,54,0.75);
-  border:1px solid rgba(75,186,255,0.3);
-  border-radius:14px;font-size:18px;backdrop-filter:blur(6px);
+  min-width:44px;flex:1;max-width:64px;padding:8px 2px;
+  background:rgba(7,17,37,0.82);
+  border:1px solid rgba(0,240,255,0.25);
+  border-radius:14px;font-size:18px;color:#fff;
+  backdrop-filter:blur(8px);cursor:pointer;
+  transition:transform .12s, border-color .15s;
 }
 #weaponbar button.sel{
-  border-color:var(--neon-gold);
-  background:linear-gradient(180deg, rgba(255,190,11,0.3), rgba(140,80,10,0.6));
-  box-shadow:0 0 16px rgba(255,190,11,0.45);
+  border-color:var(--amber);
+  background:linear-gradient(180deg, rgba(255,183,3,0.3), rgba(120,60,5,0.7));
+  box-shadow:0 0 18px rgba(255,183,3,0.5);
 }
+
 #bombBtn{
-  position:absolute;bottom:calc(var(--safe-bottom) + 80px);right:16px;
-  width:58px;height:58px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%, #ff4b68, #961228);
-  border:2px solid #ff99aa;
-  box-shadow:0 0 20px rgba(255,75,104,0.6);
-  font-size:24px;display:none;z-index:10;
+  position:absolute;bottom:calc(var(--safe-bottom) + 82px);right:16px;
+  width:62px;height:62px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #ff2a5f, #75031b);
+  border:2.5px solid #ffa3b5;
+  box-shadow:0 0 25px rgba(255,30,86,0.7), inset 0 0 10px rgba(255,255,255,0.4);
+  font-size:25px;display:none;z-index:22;cursor:pointer;
 }
+
+/* =========================================================
+   النوافذ المنبثقة والقوائم (Futuristic Modals)
+   ========================================================= */
 #overlay{
-  position:absolute;inset:0;background:rgba(3,8,20,0.85);
+  position:absolute;inset:0;background:rgba(2,6,16,0.88);
   display:flex;justify-content:center;align-items:center;
-  overflow:auto;padding:16px;backdrop-filter:blur(10px);z-index:30;
+  overflow:auto;padding:16px;backdrop-filter:blur(14px);z-index:40;
 }
 #overlay.hide{display:none}
 .panel{
-  width:100%;max-width:420px;max-height:92%;overflow:auto;text-align:center;
-  background:linear-gradient(155deg, rgba(16,36,73,0.92), rgba(6,12,28,0.95));
-  border:1px solid rgba(0,229,255,0.35);border-radius:24px;padding:20px;
-  box-shadow:0 15px 60px rgba(0,0,0,0.8), 0 0 25px rgba(0,229,255,0.12);
+  width:100%;max-width:430px;max-height:92%;overflow:auto;
+  background:linear-gradient(160deg, rgba(12,28,58,0.95), rgba(4,10,24,0.98));
+  border:1.5px solid rgba(0,240,255,0.4);border-radius:26px;padding:22px;
+  box-shadow:0 20px 70px rgba(0,0,0,0.9), 0 0 35px rgba(0,240,255,0.18);
+  text-align:center;
 }
-.panel h1{font-size:26px;color:#a3edff;margin:4px 0 14px;text-shadow:0 0 15px rgba(0,229,255,0.4)}
-.panel p{font-size:13.5px;line-height:1.75;color:#c1d5ed}
-.big{
-  width:92%;padding:13px 20px;border-radius:15px;
-  background:linear-gradient(100deg,#00c3ff,#6943ff);
-  margin:7px auto;font-size:15px;box-shadow:0 4px 18px rgba(0,195,255,0.35);
-  display:block;
+.panel h1{
+  font-size:27px;color:#92f6ff;margin:2px 0 14px;
+  text-shadow:0 0 18px rgba(0,240,255,0.5);
 }
-.secondary{background:rgba(35,58,97,0.8);box-shadow:none;border:1px solid rgba(255,255,255,0.1)}
-.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0}
-.tabs button{padding:10px 14px;border-radius:12px;background:rgba(25,50,88,0.8);border:1px solid rgba(0,229,255,0.2)}
+.panel p{font-size:13.5px;line-height:1.8;color:#b9d5f5}
+.big-btn{
+  width:94%;padding:14px 20px;border-radius:16px;
+  background:linear-gradient(100deg, #00b4d8, #5a189a);
+  border:1px solid rgba(0,240,255,0.5);
+  margin:8px auto;font-size:15px;font-weight:900;color:#fff;
+  box-shadow:0 6px 20px rgba(0,180,216,0.35);
+  cursor:pointer;display:block;
+}
+.big-btn.secondary{
+  background:rgba(22,44,79,0.75);border-color:rgba(255,255,255,0.15);box-shadow:none;
+}
+.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.tabs button{
+  padding:10px 14px;border-radius:12px;background:rgba(20,45,85,0.8);
+  border:1px solid rgba(0,240,255,0.25);color:#fff;font-weight:800;cursor:pointer;
+}
 .card{
-  display:flex;justify-content:space-between;align-items:center;text-align:right;gap:8px;
-  background:rgba(18,37,68,0.7);border:1px solid rgba(75,186,255,0.25);
-  border-radius:14px;padding:10px 12px;margin:8px 0;font-size:12.5px;
+  display:flex;justify-content:space-between;align-items:center;text-align:right;gap:10px;
+  background:rgba(14,32,64,0.65);border:1px solid rgba(0,240,255,0.2);
+  border-radius:15px;padding:12px;margin:8px 0;font-size:13px;
 }
-.card button{background:linear-gradient(100deg,#00a8e8,#007ea7);border-radius:10px;padding:9px 12px;min-width:85px}
-.tiny{font-size:11.5px;color:#9bb8d6}
-.notice{color:#ffd56b!important}
+.card button{
+  background:linear-gradient(100deg,#0096c7,#0077b6);
+  border:1px solid rgba(0,240,255,0.4);border-radius:10px;
+  padding:9px 13px;min-width:88px;color:#fff;font-weight:800;cursor:pointer;
+}
 #toast{
-  position:absolute;top:115px;left:10%;width:80%;text-align:center;
-  font-weight:900;color:#ffdf79;text-shadow:0 2px 10px rgba(0,0,0,0.9), 0 0 12px rgba(255,223,121,0.5);
-  pointer-events:none;opacity:0;transition:opacity .25s ease;z-index:20;font-size:15px;
+  position:absolute;top:120px;left:8%;width:84%;text-align:center;
+  font-weight:900;color:#ffd56b;
+  text-shadow:0 2px 10px rgba(0,0,0,0.9), 0 0 15px rgba(255,213,107,0.6);
+  pointer-events:none;opacity:0;transition:opacity .25s ease;
+  z-index:30;font-size:15px;letter-spacing:.3px;
 }
-#bossBar{
-  position:absolute;top:76px;left:10%;width:80%;height:14px;
-  border-radius:10px;background:rgba(20,5,15,0.85);display:none;
-  overflow:hidden;border:1.5px solid rgba(255,80,100,0.6);
-  box-shadow:0 0 15px rgba(255,50,80,0.4);z-index:15;
+.roomcode{
+  font-size:38px;letter-spacing:10px;color:var(--amber);font-weight:900;
+  text-shadow:0 0 30px rgba(255,183,3,0.7);margin:10px 0;
 }
-#bossFill{height:100%;background:linear-gradient(90deg,#ff2a55,#ffb703);width:100%;transition:width .1s}
-.roomcode{font-size:36px;letter-spacing:10px;color:#ffbe0b;font-weight:900;text-shadow:0 0 25px rgba(255,190,11,0.6);margin:10px 0}
-.badge{display:inline-block;background:#15803d;color:#dcfce7;padding:3px 9px;border-radius:20px;font-size:11px}
-.pill.net{border-color:rgba(74,222,128,0.4);color:#86efac}
-#micBtn.on{background:#16a34a!important;border-color:#4ade80!important;box-shadow:0 0 16px rgba(74,222,128,0.7)}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800}
+.badge.host{background:#047857;color:#a7f3d0}
+.badge.guest{background:#b45309;color:#fde68a}
 #remoteAudio{display:none}
 </style>
 </head>
@@ -141,28 +225,65 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 <div id="stage">
   <canvas id="game"></canvas>
 
+  <!-- شاشة القيادة HUD -->
   <div id="hud">
-    <div class="col">
-      <div class="pill">🏆 <span id="score">0</span> | 🪙 <span id="coins">0</span></div>
-      <div class="pill">❤️ <span id="life">3</span> 🛡️ <span id="shield">0</span></div>
+    <!-- عمود الطيار الأساسي -->
+    <div class="hud-col">
+      <div class="gauge-box">
+        <span style="font-size:14px">❤️</span>
+        <div class="gauge-bar-wrap"><div class="gauge-bar hp" id="myHpFill"></div></div>
+        <span id="myHpText">3/3</span>
+      </div>
+      <div class="gauge-box" style="border-color:rgba(0,119,254,0.35)">
+        <span style="font-size:14px">🛡️</span>
+        <div class="gauge-bar-wrap"><div class="gauge-bar shield" id="myShieldFill" style="width:0%"></div></div>
+        <span id="shieldVal">0</span>
+      </div>
+      <div class="badge-pill gold">🪙 <span id="coins">0</span> | 🏆 <span id="score">0</span></div>
     </div>
-    <div class="col" style="text-align:center">
-      <div class="pill">🌍 <span id="world">1</span>/20 · <span id="levelHUD">1</span>/20</div>
-      <div class="pill">🔥 ×<span id="combo">1</span></div>
-      <div class="pill net" id="netPill" style="display:none">🌐 <span id="roomLabel">—</span></div>
+
+    <!-- مركز الشاشة: المرحلة والمضاعف -->
+    <div class="hud-col center">
+      <div class="badge-pill cyan">🌍 <span id="world">1</span>/20 · <span id="levelHUD">1</span>/20</div>
+      <div class="badge-pill" style="border-color:rgba(255,100,50,0.4);color:#ff8a65">🔥 ×<span id="combo">1</span></div>
     </div>
-    <div class="col">
-      <button id="pause">⏸</button>
-      <button id="sound">🔊</button>
-      <button id="micBtn" style="display:none">🎤</button>
+
+    <!-- عمود الحليف والأزرار -->
+    <div class="hud-col end">
+      <div class="hud-btn-group">
+        <button class="hud-btn" id="pause">⏸</button>
+        <button class="hud-btn" id="sound">🔊</button>
+        <button class="hud-btn" id="micBtn" style="display:none">🎤</button>
+      </div>
+
+      <!-- بطاقة طائرة الحليف أثناء الأونلاين -->
+      <div class="gauge-box" id="allyCard" style="display:none;border-color:rgba(0,245,155,0.4)">
+        <span style="font-size:14px">🛰️</span>
+        <div style="flex:1;display:grid;gap:2px">
+          <div style="font-size:10px;color:#a7f3d0;display:flex;justify-content:space-between">
+            <span id="allyName">حليف</span>
+            <span id="allyPing">● متصل</span>
+          </div>
+          <div class="gauge-bar-wrap"><div class="gauge-bar ally" id="allyHpFill"></div></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div id="bossBar"><div id="bossFill"></div></div>
+  <!-- شريط الزعيم الفضائي -->
+  <div id="bossBox">
+    <div id="bossHeader">
+      <span id="bossName">⚠️ زعيم المرحلة الكونية</span>
+      <span id="bossHpPercent">100%</span>
+    </div>
+    <div id="bossBarInner"><div id="bossFill"></div></div>
+  </div>
+
   <div id="toast"></div>
   <button id="bombBtn">💣</button>
   <div id="weaponbar"></div>
 
+  <!-- النوافذ والشاشات -->
   <div id="overlay" class="hide">
     <div class="panel">
       <h1 id="heading">✈️ حرب الطائرات: الأساطير</h1>
@@ -237,12 +358,12 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   }
 
   const WEAP = [
-    ['🔫','رشاش البلازما','machine','طلقات مزدوجة متسارعة'],
-    ['🚀','صواريخ التتبع','missile','صواريخ موجهة مدمرة'],
-    ['⚡','شعاع الليزر','laser','ليزر فوتوني خارق للأعداء'],
-    ['💣','القنابل النووية','bomb','مسح شامل لشاشة المعركة'],
-    ['🔥','القاذف الناري','fire','موجات حرارية ذات ضرر مستمر'],
-    ['🌪️','الدرع الدائري','radial','حلقة هجومية محيطية']
+    ['🔫','رشاش البلازما','machine'],
+    ['🚀','صواريخ التتبع','missile'],
+    ['⚡','شعاع الليزر','laser'],
+    ['💣','القنبلة التكتيكية','bomb'],
+    ['🔥','القاذف الناري','fire'],
+    ['🌪️','الدرع الدائري','radial']
   ];
   const WORLD_NAMES = [
     'سماء العاصمة','الصحراء الحربية','المحيط المظلم','الجبال الثلجية','الغابة الكونية',
@@ -295,12 +416,14 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     Array.from({length:20}, () => ({x:rnd(0,W), y:rnd(0,H), s:rnd(2.5,3.6), v:160, a:1.0}))
   ];
 
-  /* إضافة خاصية tilt لإمالة الطائرة بحسب سرعة الانعطاف */
   const player = {
     x:W/2, y:H-160, tx:W/2, ty:H-160, tilt:0,
     hp:3, maxHp:3, inv:0, shield:0, power:1, fire:0, bombs:2, alive:true
   };
 
+  /* =========================================================
+     ★★★ محرك الشبكة فائق السلاسة (Smooth Multiplayer Engine) ★★★
+     ========================================================= */
   const net = {
     ws: null, connected: false, roomCode: '', myId: '', hostId: '', host: false,
     players: new Map(), online: false, sendT: 0, pendingBullets: [], lastHurtSent: 0
@@ -328,14 +451,29 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     switch(m.t){
       case 'joined':
         net.roomCode = m.code; net.myId = m.id; net.hostId = m.hostId;
-        net.host = m.hostId === m.id; net.players = new Map();
-        m.players.forEach(p => net.players.set(p.id, p));
+        net.host = m.hostId === m.id;
+        net.players.clear();
+        m.players.forEach(p => {
+          net.players.set(p.id, {
+            id: p.id, x: W/2, y: H-160, tx: W/2, ty: H-160,
+            tilt: 0, hp: 3, maxHp: 3, alive: true, name: p.name || 'حليف'
+          });
+        });
         updateMicUI(); lobbyScreen(); break;
+
       case 'lobby':
-        net.players = new Map();
-        m.players.forEach(p => net.players.set(p.id, p));
+        m.players.forEach(p => {
+          let cur = net.players.get(p.id);
+          if (!cur) {
+            net.players.set(p.id, {
+              id: p.id, x: W/2, y: H-160, tx: W/2, ty: H-160,
+              tilt: 0, hp: 3, maxHp: 3, alive: true, name: p.name || 'حليف'
+            });
+          } else cur.name = p.name || cur.name;
+        });
         net.hostId = m.host; net.host = m.host === net.myId;
         if (state === 'lobby') lobbyScreen(); break;
+
       case 'start': startOnline(m.levelIndex); break;
       case 'S': applySnapshot(m); break;
       case 'shoot': onRemoteShoot(m); break;
@@ -353,6 +491,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     }
   }
 
+  /* تطبيق بيانات السيرفر بدون إعادة بناء الكائنات (منع القفزات والتقطيع) */
   function applySnapshot(m){
     const seen = new Set();
     for (const [id,type,x,y,hp,max,r] of m.enemies){
@@ -370,16 +509,31 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       ebSeen.add(id);
       let b = bad.find(v => v.id === id);
       if (!b) bad.push({ id, x, y, vx, vy, r:7 });
-      else { b.x += (x-b.x)*0.4; b.y += (y-b.y)*0.4; b.vx = vx; b.vy = vy; }
+      else { b.x += (x-b.x)*0.45; b.y += (y-b.y)*0.45; b.vx = vx; b.vy = vy; }
     }
     for (let i = bad.length-1; i>=0; i--) if (!ebSeen.has(bad[i].id)) bad.splice(i,1);
 
-    const pm = new Map();
-    for (const [id,x,y,hp,alive,name] of m.players)
-      pm.set(id, { id, x, y, hp, alive:!!alive, name });
-    net.players = pm;
+    /* استيفاء وتحديث مواقع طائرات اللاعبين بنعومة تامة */
+    const currentActiveIds = new Set();
+    for (const [id, x, y, hp, alive, name] of m.players){
+      currentActiveIds.add(id);
+      let p = net.players.get(id);
+      if (!p){
+        p = { id, x, y, tx:x, ty:y, tilt:0, hp, maxHp:hp, alive:!!alive, name: name || 'حليف' };
+        net.players.set(id, p);
+      } else {
+        p.tx = x;
+        p.ty = y;
+        p.hp = hp;
+        p.alive = !!alive;
+        if (name) p.name = name;
+      }
+    }
+    for (const [id] of net.players){
+      if (!currentActiveIds.has(id) && id !== net.myId) net.players.delete(id);
+    }
 
-    const me = pm.get(net.myId);
+    const me = net.players.get(net.myId);
     if (me){
       player.hp = me.hp;
       if (me.alive !== player.alive){
@@ -412,11 +566,11 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     combo = Math.min(9, combo+1); comboTime = 3;
     shake = Math.max(shake, e.type==='boss'?20:6);
     vibrate(e.type==='boss'?90:35);
-    addShockwave(e.x, e.y, e.type==='boss'?80:35, '#00e5ff');
-    burst(e.x, e.y, e.type==='boss'?'#ffbe0b':'#ff3366', e.type==='boss'?70:22);
+    addShockwave(e.x, e.y, e.type==='boss'?85:38, '#00f0ff');
+    burst(e.x, e.y, e.type==='boss'?'#ffb703':'#ff1e56', e.type==='boss'?70:22);
     if (e.type === 'boss'){
       bossActive = false; bossDone = true; gain(100+world*20);
-      toast('🏆 هزم الفريق زعيم المرحلة!');
+      toast('🏆 تم تحييد زعيم المعركة!');
     } else {
       kills++; score += e.score*combo; gain(2+world);
     }
@@ -427,12 +581,12 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   function netHurt(){
     if (!player.alive || player.inv > 0) return;
     const now = Date.now();
-    if (now - net.lastHurtSent < 600) return;
+    if (now - net.lastHurtSent < 500) return;
     net.lastHurtSent = now;
     player.inv = 1.2;
     netSend({ t:'hurt' });
     tone(140, .35); shake = 14; vibrate(60);
-    burst(player.x, player.y, '#00e5ff', 30);
+    burst(player.x, player.y, '#00f0ff', 30);
   }
 
   function tone(f=440, d=.08){
@@ -517,7 +671,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       });
       ensurePC();
       for (const t of localStream.getTracks()) peerConn.addTrack(t, localStream);
-      toast('🎙️ تم تشغيل الميكروفون');
+      toast('🎙️ الميكروفون نشط');
     } catch(err){
       toast('❌ الميكروفون غير متاح');
       micOn = false; updateMicUI();
@@ -540,28 +694,42 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     btn.textContent = micOn ? '🎙️' : '🎤';
   }
 
-  const hudCache = {};
-  function setText(id, val){
-    if (hudCache[id] === val) return;
-    hudCache[id] = val;
-    const el = $(id); if (el) el.textContent = val;
-  }
+  /* تحديث شاشة القيادة الرقمية HUD */
   function toast(s){ $('toast').textContent = s; $('toast').style.opacity = 1; toastTime = 2.4; }
 
   function hud(){
-    setText('score', score);
-    setText('coins', save.coins);
-    setText('life', player.alive ? player.hp + '/' + player.maxHp : '💀');
-    setText('shield', Math.ceil(player.shield));
-    setText('world', world);
-    setText('levelHUD', level);
-    setText('combo', combo);
-    setText('bombBtn', '💣 ' + player.bombs);
+    $('score').textContent = score;
+    $('coins').textContent = save.coins;
+    $('world').textContent = world;
+    $('levelHUD').textContent = level;
+    $('combo').textContent = combo;
+
+    /* نسبة صحة ودرع اللاعب المحلي */
+    const hpRatio = player.alive ? Math.max(0, player.hp / player.maxHp) : 0;
+    $('myHpFill').style.width = (hpRatio * 100) + '%';
+    $('myHpText').textContent = player.alive ? `${player.hp}/${player.maxHp}` : 'سقطت';
+    $('myShieldFill').style.width = Math.min(100, (player.shield / 9) * 100) + '%';
+    $('shieldVal').textContent = Math.ceil(player.shield);
+
+    $('bombBtn').textContent = '💣 ' + player.bombs;
     $('bombBtn').style.display = state === 'play' ? 'block' : 'none';
+
+    /* تحديث بطاقة الحليف في الأونلاين */
     if (net.online){
-      $('netPill').style.display = 'block';
-      setText('roomLabel', net.roomCode);
-    } else $('netPill').style.display = 'none';
+      let ally = null;
+      for (const [id, p] of net.players){
+        if (id !== net.myId){ ally = p; break; }
+      }
+      if (ally){
+        $('allyCard').style.display = 'flex';
+        $('allyName').textContent = ally.name || 'حليف';
+        $('allyHpFill').style.width = ally.alive ? `${(ally.hp/ally.maxHp)*100}%` : '0%';
+      } else {
+        $('allyCard').style.display = 'none';
+      }
+    } else {
+      $('allyCard').style.display = 'none';
+    }
   }
 
   function menu(title, html){
@@ -577,18 +745,19 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     $('sound').textContent = sound ? '🔊' : '🔇';
     updateMicUI();
     menu('✈️ حرب الطائرات: الأساطير', `
-      <p>🚀 20 عالماً × 20 مستوى = <b>400 مستوى</b> ملحمي</p>
+      <p style="color:#92f6ff;font-weight:800">قمرة العمليات المركزية</p>
+      <p>🚀 20 عالماً × 20 مرحلة = <b>400 مستوى ملحمي</b></p>
       <p>التقدم: <b>${Math.min(400,save.progress)}/400</b> | 🪙 ${save.coins} | 🏆 ${save.best}</p>
-      <div style="height:10px;background:#0d1d36;border-radius:10px;overflow:hidden;margin:10px 0;border:1px solid rgba(0,229,255,0.3)">
-        <div style="height:100%;background:linear-gradient(90deg,#00e5ff,#ffbe0b);width:${(save.progress/400)*100}%"></div>
+      <div style="height:12px;background:#061226;border-radius:10px;overflow:hidden;margin:12px 0;border:1px solid rgba(0,240,255,0.35);padding:1px">
+        <div style="height:100%;border-radius:8px;background:linear-gradient(90deg,#00f0ff,#ffb703);width:${(save.progress/400)*100}%"></div>
       </div>
-      <button class="big" id="continue">▶ ${save.progress>=400?'إعادة الجولة الأخيرة':'متابعة المستوى '+(Math.min(399,save.progress)%20+1)}</button>
-      <button class="big" style="background:linear-gradient(100deg,#10b981,#059669)" id="onlineBtn">🌐 اللعب الجماعي أونلاين + 🎙️</button>
+      <button class="big-btn" id="continue">▶ ${save.progress>=400?'إعادة المعركة الأخيرة':'متابعة المستوى '+(Math.min(399,save.progress)%20+1)}</button>
+      <button class="big-btn" style="background:linear-gradient(100deg,#059669,#00f59b)" id="onlineBtn">🌐 معركة جوية جماعية + 🎙️</button>
       <div class="tabs">
-        <button id="worlds">🗺️ المراحل</button>
+        <button id="worlds">🗺️ الخرائط</button>
         <button id="shop">🛒 المتجر</button>
         <button id="tasks">📅 المهام</button>
-        <button id="settings">⚙️ الإعدادات</button>
+        <button id="settings">⚙️ الخيارات</button>
       </div>
     `);
     $('continue').onclick = () => start(Math.min(399, save.progress));
@@ -601,17 +770,17 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
   function onlineMenu(){
     menu('🌐 اللعب الجماعي أونلاين', `
-      <p>العب مع أصدقائك في نفس المعركة مع ميزة الصوت الحي.</p>
-      <div class="card"><label>اسم الطيار</label>
-        <input id="pname" value="${save.playerName||'كابتن'}" maxlength="12" style="padding:8px;border-radius:8px;border:1px solid #00e5ff;background:#061226;color:#fff;width:130px;text-align:center">
+      <p>انضم مع رفيقك في سرب جوي واحد وتحدثا بالصوت الحي.</p>
+      <div class="card"><label>معرّف الطيار</label>
+        <input id="pname" value="${save.playerName||'كابتن'}" maxlength="12" style="padding:9px;border-radius:10px;border:1px solid #00f0ff;background:#051124;color:#fff;width:130px;text-align:center;font-weight:900">
       </div>
-      <button class="big" id="createRoom" style="background:linear-gradient(100deg,#10b981,#047857)">➕ إنشاء غرفة جديدة</button>
+      <button class="big-btn" id="createRoom" style="background:linear-gradient(100deg,#059669,#10b981)">➕ إنشاء غرفة طيران</button>
       <hr style="border:0;border-top:1px solid rgba(255,255,255,0.15);margin:14px 0">
-      <div class="card"><label>رمز الغرفة</label>
-        <input id="joincode" placeholder="XXXX" maxlength="6" style="padding:8px;border-radius:8px;border:1px solid #00e5ff;background:#061226;color:#fff;width:130px;text-align:center;letter-spacing:4px;text-transform:uppercase">
+      <div class="card"><label>رمز السرب</label>
+        <input id="joincode" placeholder="XXXX" maxlength="6" style="padding:9px;border-radius:10px;border:1px solid #00f0ff;background:#051124;color:#fff;width:130px;text-align:center;letter-spacing:4px;text-transform:uppercase;font-weight:900">
       </div>
-      <button class="big" id="joinRoom">🔑 انضمام إلى غرفة</button>
-      <button class="big secondary" id="back">⬅ رجوع</button>
+      <button class="big-btn" id="joinRoom">🔑 دخول برمز السرب</button>
+      <button class="big-btn secondary" id="back">⬅ رجوع</button>
     `);
     $('back').onclick = main;
     $('createRoom').onclick = () => {
@@ -631,27 +800,29 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     for (const [id,p] of net.players){
       n++;
       const isHost = id === net.hostId;
-      list += `<div class="card"><div><b>${p.name||'لاعب'}</b> ${isHost?'<span class="badge">🛩️ قائد السرب</span>':'<span class="badge" style="background:#b45309">✈️ مرافق</span>'}${id===net.myId?' (أنت)':''}</div>
-                 <div>${id===net.myId?'🎮':'🛰️'}</div></div>`;
+      list += `<div class="card">
+        <div><b>${p.name||'لاعب'}</b> ${isHost?'<span class="badge host">🛩️ قائد السرب</span>':'<span class="badge guest">✈️ الجناح المعاون</span>'}${id===net.myId?' (أنت)':''}</div>
+        <div>${id===net.myId?'🎮':'🛰️'}</div>
+      </div>`;
     }
     const isHost = net.host;
     const hostLevel = Math.min(399, save.progress);
     const w = Math.floor(hostLevel/20)+1, l = hostLevel%20+1;
 
-    menu('🎮 غرفة الانتظار', `
-      <p>شارك الرمز مع صديقك:</p>
+    menu('🎮 غرفة التجهيز الحربية', `
+      <p>شارك هذا الرمز مع زميلك للانضمام:</p>
       <div class="roomcode">${net.roomCode}</div>
-      <p class="tiny">أعضاء الفريق (${n}/2):</p>
+      <p class="tiny">أعضاء السرب الجوي (${n}/2):</p>
       ${list}
       <div class="card" style="margin-top:14px">
-        <label>🎙️ المحادثة الصوتية</label>
-        <button class="big" id="micToggle" style="margin:0;padding:9px 16px;${micOn?'background:#16a34a':''}">${micOn?'🔴 إيقاف المايك':'🟢 تفعيل المايك'}</button>
+        <label>🎙️ المحادثة الصوتية المشتركة</label>
+        <button class="big-btn" id="micToggle" style="margin:0;padding:8px 14px;width:auto;${micOn?'background:#059669':''}">${micOn?'🔴 إيقاف المايك':'🟢 تفعيل المايك'}</button>
       </div>
       ${isHost
-        ? `<button class="big" id="startNet" style="background:linear-gradient(100deg,#10b981,#059669)">🚀 إقلاع السرب</button>
-           <p class="tiny">العالم ${w} · المستوى ${l}</p>`
-        : `<p class="notice">⏳ بانتظار إشارة قائد السرب للانطلاق...</p>`}
-      <button class="big secondary" id="leaveRoom">🚪 مغادرة</button>
+        ? `<button class="big-btn" id="startNet" style="background:linear-gradient(100deg,#059669,#00f59b)">🚀 انطلاق السرب نحو المعركة</button>
+           <p class="tiny" style="color:#92f6ff">العالم ${w} · المستوى ${l}</p>`
+        : `<p class="notice">⏳ بانتظار إشارة قائد السرب للإقلاع...</p>`}
+      <button class="big-btn secondary" id="leaveRoom">🚪 مغادرة الغرفة</button>
     `);
     state = 'lobby';
     $('micToggle').onclick = async () => { await toggleMic(); lobbyScreen(); };
@@ -675,17 +846,17 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       inv:2, shield:0, power:1, fire:0, bombs:3, alive:true });
     $('overlay').classList.add('hide');
     buildBar(); hud(); updateMicUI();
-    toast('🌐 انطلقت المهمة الجماعية!');
+    toast('🌐 انطلقت المهمة الجوية المشتركة!');
   }
 
   function finishOnline(win){
     if (state === 'over') return;
     state = 'over';
     save.best = Math.max(save.best, score); persist();
-    menu(win?'🏆 نصر حاسم للفريق!':'💥 سقطت الطائرة في المعركة', `
-      <p>النقاط الإجمالية: <b>${score}</b> | 🪙 الغنائم: ${earned}<br>الأعداء المدمرون: ${kills}</p>
-      ${net.host ? '<button class="big" id="againNet">🔁 إعادة المهمة</button>' : '<p class="tiny">بانتظار قرار قائد السرب...</p>'}
-      <button class="big secondary" id="leaveNet">🚪 خروج للرئيسية</button>
+    menu(win?'🏆 انتصار حاسم للسرب!':'💥 تحطمت طائرات السرب', `
+      <p>مجموع نقاط السرب: <b>${score}</b> | 🪙 الغنائم: ${earned}<br>الطائرات المعادية المدمرة: ${kills}</p>
+      ${net.host ? '<button class="big-btn" id="againNet">🔁 إعادة المهمة</button>' : '<p class="tiny">بانتظار قرار قائد السرب...</p>'}
+      <button class="big-btn secondary" id="leaveNet">🚪 خروج للرئيسية</button>
     `);
     state = 'over';
     $('againNet')?.addEventListener('click', () => netSend({ t:'restart' }));
@@ -696,11 +867,11 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     let html = `<p>اختر مسرح العمليات الكونية:</p><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">`;
     for (let i = 0; i < 20; i++){
       const first = i*20, open = first <= save.progress, done = save.progress >= first + 20;
-      html += `<button data-w="${i}" style="border-radius:12px;padding:12px 6px;min-height:65px;background:${open?'#142b4d':'#0a1424'};border:1px solid ${open?'#00e5ff44':'#ffffff15'};color:#fff" ${open?'':'disabled'}>
+      html += `<button data-w="${i}" style="border-radius:14px;padding:12px 6px;min-height:68px;background:${open?'linear-gradient(145deg,#0d254c,#07152d)':'#060c18'};border:1px solid ${open?'#00f0ff44':'#ffffff15'};color:#fff;cursor:pointer" ${open?'':'disabled'}>
         ${done?'🏆':open?'🌍':'🔒'}<br><b>${i+1}. ${WORLD_NAMES[i]}</b><br><small style="color:#7fb5df">${Math.max(0, Math.min(20, save.progress-first))}/20</small>
       </button>`;
     }
-    html += `</div><button class="big secondary" id="back" style="margin-top:12px">⬅ الرئيسية</button>`;
+    html += `</div><button class="big-btn secondary" id="back" style="margin-top:14px">⬅ الرئيسية</button>`;
     menu('🗺️ خرائط النجوم', html);
     document.querySelectorAll('[data-w]').forEach(b => b.onclick = () => levelSelect(+b.dataset.w));
     $('back').onclick = main;
@@ -710,11 +881,11 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     let html = `<p>${WORLD_NAMES[w]} (العالم ${w+1})</p><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0">`;
     for (let j = 0; j < 20; j++){
       const n = w*20+j, open = n <= save.progress, done = n < save.progress;
-      html += `<button data-l="${n}" style="min-height:50px;border-radius:12px;background:${done?'#065f46':open?'#b45309':'#0d1728'};border:1px solid ${done?'#34d399':open?'#fbbf24':'#ffffff15'};color:#fff;font-weight:900" ${open?'':'disabled'}>
+      html += `<button data-l="${n}" style="min-height:50px;border-radius:12px;background:${done?'#065f46':open?'#b45309':'#081224'};border:1px solid ${done?'#34d399':open?'#fbbf24':'#ffffff15'};color:#fff;font-weight:900;cursor:pointer" ${open?'':'disabled'}>
         ${done?'★':open?'▶':'🔒'}<br>${j+1}
       </button>`;
     }
-    html += `</div><button class="big secondary" id="back">⬅ العوالم</button>`;
+    html += `</div><button class="big-btn secondary" id="back">⬅ العوالم</button>`;
     menu('🎯 مراحل العالم ' + (w+1), html);
     document.querySelectorAll('[data-l]').forEach(b => b.onclick = () => start(+b.dataset.l));
     $('back').onclick = worldSelect;
@@ -722,14 +893,14 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
   function settingsPage(){
     const v = save.settings;
-    menu('⚙️ خيارات اللعبة', `
+    menu('⚙️ خيارات الطيران', `
       <div class="card"><label>🔊 المؤثرات الصوتية</label><input id="setSound" type="checkbox" ${v.sound?'checked':''}></div>
       <div class="card"><label>🔉 مستوى الصوت</label><input id="setVolume" type="range" min="0" max="100" value="${v.volume}"></div>
       <div class="card"><label>📳 اهتزاز الهاتف (Haptic)</label><input id="setShake" type="checkbox" ${v.shake?'checked':''}></div>
       <div class="card"><label>✨ جودة الجرافيكس</label><select id="setParticles" style="background:#06142a;color:#fff;padding:6px;border-radius:8px"><option value="low">اقتصادي</option><option value="medium">متوازن</option><option value="high">خارق (Neon Ultra)</option></select></div>
       <div class="card"><label>🕹️ حساسية وسرعة اللمس</label><select id="setControls" style="background:#06142a;color:#fff;padding:6px;border-radius:8px"><option value="slow">دقيقة (1.1×)</option><option value="normal">سلسة وسريعة (1.45×)</option><option value="fast">فائقة الرشاقة (1.85×)</option></select></div>
-      <button class="big" id="saveSettings">💾 حفظ الإعدادات</button>
-      <button class="big secondary" id="back">⬅ الرئيسية</button>
+      <button class="big-btn" id="saveSettings">💾 حفظ الإعدادات</button>
+      <button class="big-btn secondary" id="back">⬅ الرئيسية</button>
     `);
     $('setParticles').value = v.particles; $('setControls').value = v.controls;
     $('saveSettings').onclick = () => {
@@ -740,27 +911,27 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       };
       sound = save.settings.sound;
       $('sound').textContent = sound ? '🔊' : '🔇';
-      persist(); toast('✅ تم الحفظ بنجاح'); settingsPage();
+      persist(); toast('✅ تم حفظ الإعدادات'); settingsPage();
     };
     $('back').onclick = main;
   }
 
   function shop(){
-    let html = `<p>🪙 رصيدك الحالي: <b>${save.coins}</b> عملة</p>`;
-    const ups = [['damage','قوة النيران الفوتونية','زيادة الضرر بنسبة 35%',120],['armor','الدروع المعززة','طاقة إضافية للطائرة',150],['magnet','المغناطيس الكهرومغناطيسي','جذب المكافآت من مسافات أبعد',100]];
+    let html = `<p>🪙 رصيدك الحالي: <b>${save.coins}</b> عملة فضائية</p>`;
+    const ups = [['damage','قوة النيران البلازمية','زيادة ضرر الصواريخ والليزر',120],['armor','الدروع المعززة','زيادة طاقة الطائرة القصوى',150],['magnet','المغناطيس الكهرومغناطيسي','جذب المكافآت من مسافات أبعد',100]];
     for (const [k,n,d,b] of ups){
       const lv = save.upgrades[k], cost = b*(lv+1);
       html += `<div class="card"><div><b>${n} (${lv}/5)</b><small style="display:block;color:#9bb8d6">${d}</small></div>
-        <button data-up="${k}" ${lv>=5||save.coins<cost?'disabled':''}>${lv>=5?'الحد الأقصى':'🪙 '+cost}</button></div>`;
+        <button data-up="${k}" ${lv>=5||save.coins<cost?'disabled':''}>${lv>=5?'مكتمل':'🪙 '+cost}</button></div>`;
     }
-    html += '<h3 style="color:#a3edff;margin-top:16px">🔓 ترسانة الأسلحة المتطورة</h3>';
+    html += '<h3 style="color:#92f6ff;margin-top:16px">🔓 ترسانة الأسلحة المتطورة</h3>';
     for (let i = 1; i < WEAP.length; i++){
       const w = WEAP[i], cost = i*180;
-      html += `<div class="card"><div><b>${w[0]} ${w[1]}</b><small style="display:block;color:#9bb8d6">${w[3]}</small></div>
+      html += `<div class="card"><div><b>${w[0]} ${w[1]}</b></div>
         <button data-weapon="${i}" ${save.unlocked.includes(i)||save.coins<cost?'disabled':''}>${save.unlocked.includes(i)?'مجهز':'🪙 '+cost}</button></div>`;
     }
-    html += '<button class="big secondary" id="back" style="margin-top:12px">↩ رجوع</button>';
-    menu('🛒 متجر الترقيات', html);
+    html += '<button class="big-btn secondary" id="back" style="margin-top:14px">↩ رجوع</button>';
+    menu('🛒 ترسانة التطوير', html);
     $('back').onclick = main;
     document.querySelectorAll('[data-up]').forEach(b => b.onclick = () => {
       const k = b.dataset.up, lv = save.upgrades[k];
@@ -775,12 +946,12 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
   function tasks(){
     const m = save.missions;
-    const arr = [['تدمير 50 طائرة معادية', m.kills, 50, 100],['قهر 2 من الزعماء الكبار', m.bosses, 2, 160],['جمع 150 من مكعبات الطاقة', m.earned, 150, 120]];
+    const arr = [['تدمير 50 طائرة معادية', m.kills, 50, 100],['قهر 2 من الزعماء الكبار', m.bosses, 2, 160],['جمع 150 مكعب طاقة', m.earned, 150, 120]];
     let html = '<p>المهام تتجدد يومياً تلقائياً.</p>';
     arr.forEach((a,i)=> html += `<div class="card"><div><b>${a[0]}</b>
-      <small style="display:block;color:#9bb8d6">${Math.min(a[1],a[2])}/${a[2]} — المكافأة: 🪙 ${a[3]}</small></div>
+      <small style="display:block;color:#9bb8d6">${Math.min(a[1],a[2])}/${a[2]} — الجائزة: 🪙 ${a[3]}</small></div>
       <button data-claim="${i}" ${a[1]<a[2]||m.claimed[i]?'disabled':''}>${m.claimed[i]?'تمت المطالبة':'استلام'}</button></div>`);
-    html += '<button class="big secondary" id="back" style="margin-top:12px">↩ رجوع</button>';
+    html += '<button class="big-btn secondary" id="back" style="margin-top:14px">↩ رجوع</button>';
     menu('📅 المهام اليومية', html);
     $('back').onclick = main;
     document.querySelectorAll('[data-claim]').forEach(b => b.onclick = () => {
@@ -825,8 +996,8 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     state = 'pause';
     menu('⏸ استراحة محارب', `
       <p>النقاط: ${score} · 🌍 ${world} · المرحلة ${level}</p>
-      <button class="big" id="resume">▶ متابعة القتال</button>
-      <button class="big secondary" id="quit">${net.online?'🚪 مغادرة الغرفة':'🏠 القائمة الرئيسية'}</button>
+      <button class="big-btn" id="resume">▶ متابعة القتال</button>
+      <button class="big-btn secondary" id="quit">${net.online?'🚪 مغادرة الغرفة':'🏠 القائمة الرئيسية'}</button>
     `);
     state = 'pause';
     $('resume').onclick = () => { state = 'play'; $('overlay').classList.add('hide'); hud(); };
@@ -846,12 +1017,12 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       gain(40 + world*8 + level*4);
     }
     persist();
-    menu(win?'🏆 اكتملت المهمة بنجاح!':'💥 تحطمت الطائرة', `
+    menu(win?'🏆 تم إنجاز المهمة بنجاح!':'💥 تحطمت الطائرة', `
       <p>🌍 ${WORLD_NAMES[worldIndex]} · المرحلة ${level}/20<br>
       النقاط المحققة: <b>${score}</b> | 🪙 المكافأة: ${earned}<br>الطائرات الساقطة: ${kills}</p>
-      <button class="big" id="again">${win && selectedLevel<399?'▶ المرحلة التالية':'🔄 المحاولة مجدداً'}</button>
-      <button class="big secondary" id="levels">🗺️ قائمة المراحل</button>
-      <button class="big secondary" id="home">🏠 الرئيسية</button>
+      <button class="big-btn" id="again">${win && selectedLevel<399?'▶ المرحلة التالية':'🔄 المحاولة مجدداً'}</button>
+      <button class="big-btn secondary" id="levels">🗺️ قائمة المراحل</button>
+      <button class="big-btn secondary" id="home">🏠 الرئيسية</button>
     `);
     state = 'over';
     $('again').onclick = () => start(win && selectedLevel<399 ? selectedLevel+1 : selectedLevel);
@@ -861,7 +1032,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
   function gain(n){ save.coins += n; earned += n; save.missions.earned += n; persist(); }
 
-  function addShockwave(x, y, maxR=60, color='#00e5ff'){
+  function addShockwave(x, y, maxR=60, color='#00f0ff'){
     shockwaves.push({ x, y, r:4, maxR, color, alpha:1 });
   }
 
@@ -874,7 +1045,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     }
   }
 
-  function addThrusterParticles(x, y, color1='#00e5ff', color2='#ff7a00'){
+  function addThrusterParticles(x, y, color1='#00f0ff', color2='#ff7536'){
     if (save.settings.particles === 'low') return;
     particles.push({
       x: x + rnd(-3, 3), y: y + 26,
@@ -934,7 +1105,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   function bomb(){
     if (state !== 'play' || player.bombs <= 0 || !player.alive) return;
     player.bombs--; bad = []; shake = 24; vibrate(120);
-    addShockwave(player.x, player.y, 240, '#ffd56b');
+    addShockwave(player.x, player.y, 250, '#ffb703');
     burst(player.x, player.y, '#ffffff', 90);
     if (net.online){
       for (const e of enemies) netSend({ t:'hit', id:e.id, dmg: e.type==='boss'?14:100 });
@@ -980,8 +1151,8 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     combo = Math.min(9, combo+1); comboTime = 3;
     shake = Math.max(shake, e.type==='boss'?18:5);
     vibrate(e.type==='boss'?80:30);
-    addShockwave(e.x, e.y, e.type==='boss'?90:35, '#00e5ff');
-    burst(e.x, e.y, e.type==='boss'?'#ffbe0b':'#ff3366', e.type==='boss'?70:22);
+    addShockwave(e.x, e.y, e.type==='boss'?90:35, '#00f0ff');
+    burst(e.x, e.y, e.type==='boss'?'#ffb703':'#ff1e56', e.type==='boss'?70:22);
     if (e.type === 'boss'){
       bossActive = false; bossDone = true;
       save.missions.bosses++; gain(100+world*20);
@@ -1001,8 +1172,8 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       player.inv = 0.4; tone(800, .05); vibrate(30); return;
     }
     player.hp--; player.inv = 2.2; combo = 1; shake = 15; vibrate(70);
-    addShockwave(player.x, player.y, 45, '#ff3366');
-    burst(player.x, player.y, '#00e5ff', 30);
+    addShockwave(player.x, player.y, 45, '#ff1e56');
+    burst(player.x, player.y, '#00f0ff', 30);
     tone(150, .35);
     if (player.hp <= 0) finish(false);
   }
@@ -1013,7 +1184,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   }
 
   /* =========================================================
-     ★ تحديث الحركة الفيزيائية السلسة والانعطاف ★
+     تحديث الفيزياء وحركة اللاعبين في الأونلاين (Buttery Smooth)
      ========================================================= */
   function update(dt){
     const ds = dt/1000;
@@ -1026,8 +1197,8 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     comboTime -= ds;
     if (comboTime <= 0) combo = 1;
 
+    /* تحديث حركة طيارتك المحلية */
     if (player.alive){
-      /* سرعة الكيبورد أسرع بكثير لتكون رشيقة */
       const keySpeed = 680 * ds;
       if (keys.ArrowLeft  || keys.KeyA) player.tx -= keySpeed;
       if (keys.ArrowRight || keys.KeyD) player.tx += keySpeed;
@@ -1037,20 +1208,17 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       player.tx = clamp(player.tx, 25, W-25);
       player.ty = clamp(player.ty, 60, H-60);
 
-      /* نعومة حركة فورية وسلسة دون أي شعور بالإسفنجية */
       const prevX = player.x;
       const k = 1 - Math.exp(-38 * ds);
       player.x += (player.tx - player.x) * k;
       player.y += (player.ty - player.y) * k;
 
-      /* حساب زاوية الإمالة (Tilt) لانسيابية طيران مذهلة */
       const deltaX = (player.x - prevX);
       const targetTilt = clamp(deltaX * 0.045, -0.28, 0.28);
       player.tilt += (targetTilt - player.tilt) * (1 - Math.exp(-22 * ds));
 
-      /* عوادم نفاثة واقعية */
-      addThrusterParticles(player.x - 14, player.y);
-      addThrusterParticles(player.x + 14, player.y);
+      addThrusterParticles(player.x - 14, player.y, '#00f0ff', '#0077fe');
+      addThrusterParticles(player.x + 14, player.y, '#00f0ff', '#0077fe');
 
       player.fire -= ds;
       if (player.fire <= 0){
@@ -1067,7 +1235,25 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       if (sw.alpha <= 0.05) shockwaves.splice(i, 1);
     }
 
+    /* استيفاء حركة طائرة الصديق في الأونلاين (بدون لاج) */
     if (net.online){
+      for (const [id, p] of net.players){
+        if (id === net.myId || !p.alive) continue;
+        const prevAllyX = p.x;
+        const interpK = 1 - Math.exp(-26 * ds);
+        p.x += (p.tx - p.x) * interpK;
+        p.y += (p.ty - p.y) * interpK;
+
+        /* إمالة وانعطاف طائرة الصديق */
+        const allyDeltaX = p.x - prevAllyX;
+        const allyTargetTilt = clamp(allyDeltaX * 0.045, -0.28, 0.28);
+        p.tilt = (p.tilt || 0) + (allyTargetTilt - (p.tilt || 0)) * (1 - Math.exp(-20 * ds));
+
+        /* عوادم نفاثة واقعية لطائرة الصديق */
+        addThrusterParticles(p.x - 14, p.y, '#ff1e56', '#ff7536');
+        addThrusterParticles(p.x + 14, p.y, '#ff1e56', '#ff7536');
+      }
+
       for (const e of enemies){
         e.x += (e.tx - e.x)*Math.min(1, ds*16);
         e.y += (e.ty - e.y)*Math.min(1, ds*16);
@@ -1088,9 +1274,11 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
         b.x += b.vx*ds; b.y += b.vy*ds;
         if (b.life <= 0 || b.y < -50 || b.y > H+50) remoteShots.splice(i,1);
       }
+
+      /* إرسال موقع اللاعب بسرعة فائقة (كل 45ms) لدقة لا متناهية */
       net.sendT -= ds;
       if (net.sendT <= 0){
-        net.sendT = 0.09;
+        net.sendT = 0.045;
         const msg = { t:'p', x:Math.round(player.x), y:Math.round(player.y) };
         if (net.pendingBullets.length){ msg.shoot = net.pendingBullets; net.pendingBullets = []; }
         netSend(msg);
@@ -1134,18 +1322,19 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
         }
         if (e.y > H+65){ enemies.splice(i,1); continue; }
         if (Math.hypot(e.x-player.x, e.y-player.y) < e.r*.7 + 13){
-          if (e.type !== 'boss'){ enemies.splice(i,1); burst(e.x, e.y, '#ff7a00', 16); }
+          if (e.type !== 'boss'){ enemies.splice(i,1); burst(e.x, e.y, '#ff7536', 16); }
           hurt();
         }
       }
       for (let i = bad.length-1; i >= 0; i--){
         const b = bad[i];
-        b.x += b.vx*ds*factor; b.y += b.vy*ds*factor;
+        b.x += b.vx*ds; b.y += b.vy*ds;
         if (b.y > H+40 || b.y < -40 || b.x < -40 || b.x > W+40){ bad.splice(i,1); continue; }
         if (Math.hypot(b.x-player.x, b.y-player.y) < b.r+12){ bad.splice(i,1); hurt(); }
       }
     }
 
+    /* طلقات اللاعب واصطداماتها */
     for (let i = shots.length-1; i >= 0; i--){
       const b = shots[i];
       b.life -= ds;
@@ -1166,7 +1355,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
         if (b.hit.has(e.id)) continue;
         if (Math.hypot(e.x-b.x, e.y-b.y) < e.r + b.r){
           b.hit.add(e.id);
-          burst(b.x, b.y, '#00e5ff', 4);
+          burst(b.x, b.y, '#00f0ff', 4);
           if (net.online){
             e.flash = 0.12; netSend({ t:'hit', id:e.id, dmg:b.damage });
           } else {
@@ -1213,7 +1402,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     hud();
   }
 
-  /* الرندرة */
+  /* رندرة الجرافيكس المطور */
   let bgCache = null, bgCacheWorld = -1;
   function getBg(){
     if (bgCacheWorld === world && bgCache) return bgCache;
@@ -1267,7 +1456,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       ctx.shadowBlur = 18; ctx.shadowColor = '#ffe259';
       const key = a.kind === 'life' ? 'life' : a.kind === 'power' ? 'power' : 'missing';
       if (!pic(key, a.x, a.y, 48, 48)){
-        ctx.fillStyle = {life:'#ff3366',power:'#ffbe0b',shield:'#00e5ff',slow:'#9de8ff',bomb:'#ff7a00'}[a.kind];
+        ctx.fillStyle = {life:'#ff1e56',power:'#ffb703',shield:'#00f0ff',slow:'#9de8ff',bomb:'#ff7536'}[a.kind];
         ctx.beginPath(); ctx.arc(a.x, a.y, 20, 0, TAU); ctx.fill();
         ctx.fillStyle = '#061021'; ctx.font = '900 20px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1279,63 +1468,68 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     for (const e of enemies){
       const sz = e.type === 'boss' ? 180 : e.type === 'tank' ? 96 : 72;
       ctx.save();
-      if (e.flash > 0) ctx.filter = 'brightness(2.4) drop-shadow(0 0 10px #ff3366)';
+      if (e.flash > 0) ctx.filter = 'brightness(2.4) drop-shadow(0 0 10px #ff1e56)';
       pic(e.type, e.x, e.y, sz, sz, e.type==='zig'?Math.sin(e.t*5)*.2:0);
       ctx.restore();
     }
 
     const bossEnemy = enemies.find(e => e.type === 'boss');
-    $('bossBar').style.display = bossEnemy && !bossEnemy.enter ? 'block' : 'none';
-    if (bossEnemy) $('bossFill').style.width = 100*Math.max(0, bossEnemy.hp/bossEnemy.max) + '%';
+    $('bossBox').style.display = bossEnemy && !bossEnemy.enter ? 'block' : 'none';
+    if (bossEnemy) {
+      const p = Math.max(0, bossEnemy.hp/bossEnemy.max);
+      $('bossFill').style.width = (p*100) + '%';
+      $('bossHpPercent').textContent = Math.round(p*100) + '%';
+    }
 
     ctx.globalCompositeOperation = 'lighter';
     for (const b of bad){
       if (!pic('ebullet', b.x, b.y, 28, 28)){
-        ctx.shadowBlur = 10; ctx.shadowColor = '#ff3366';
-        ctx.fillStyle = '#ff3366';
+        ctx.shadowBlur = 10; ctx.shadowColor = '#ff1e56';
+        ctx.fillStyle = '#ff1e56';
         ctx.beginPath(); ctx.arc(b.x, b.y, 8, 0, TAU); ctx.fill();
       }
     }
 
     for (const b of remoteShots){
-      ctx.shadowBlur = 14; ctx.shadowColor = '#ffbe0b';
+      ctx.shadowBlur = 14; ctx.shadowColor = '#ffb703';
       pic(b.sprite, b.x, b.y, 20, 42, Math.atan2(b.vy, b.vx) + Math.PI/2);
     }
 
     for (const b of shots){
       ctx.shadowBlur = 15;
-      ctx.shadowColor = b.kind === 'fire' ? '#ff7a00' : '#00e5ff';
+      ctx.shadowColor = b.kind === 'fire' ? '#ff7536' : '#00f0ff';
       if (b.kind === 'laser'){
-        ctx.fillStyle = '#00e5ff';
+        ctx.fillStyle = '#00f0ff';
         ctx.fillRect(b.x-6, b.y-32, 12, 64);
       } else if (b.kind === 'missile'){
         pic('bullet2', b.x, b.y, 20, 42, Math.atan2(b.vy,b.vx)+Math.PI/2);
       } else if (!pic(net.online && !net.host ? 'bullet2':'bullet', b.x, b.y, 20, 42, Math.atan2(b.vy,b.vx)+Math.PI/2)){
-        ctx.fillStyle = '#00e5ff'; ctx.fillRect(b.x-3, b.y-16, 6, 32);
+        ctx.fillStyle = '#00f0ff'; ctx.fillRect(b.x-3, b.y-16, 6, 32);
       }
     }
     ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = 'source-over';
 
+    /* رسم طائرة الحليف في الأونلاين بسلاسة كاملة وميلان واقعي */
     if (net.online){
       for (const [id,p] of net.players){
         if (id === net.myId || !p.alive) continue;
-        pic(net.host ? 'player2' : 'player', p.x, p.y, 82, 82);
-        ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 2;
+        pic(net.host ? 'player2' : 'player', p.x, p.y, 82, 82, p.tilt || 0);
+        ctx.strokeStyle = '#00f59b'; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(p.x, p.y, 44, 0, TAU); ctx.stroke();
-        ctx.fillStyle = '#86efac';
+        ctx.fillStyle = '#a7f3d0';
         ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(p.name || 'حليف', p.x, p.y - 52);
       }
     }
 
-    /* رسم طائرة اللاعب مع زاوية الإمالة (Tilt) */
+    /* رسم طائرة اللاعب المحلي */
     if (player.alive && state !== 'over' && (player.inv <= 0 || Math.floor(performance.now()/80)%2)){
       pic(net.online && !net.host ? 'player2' : 'player', player.x, player.y, 84, 84, player.tilt);
       if (player.shield > 0){
         ctx.save();
-        ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3;
-        ctx.shadowBlur = 20; ctx.shadowColor = '#00e5ff';
+        ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 3;
+        ctx.shadowBlur = 20; ctx.shadowColor = '#00f0ff';
         ctx.beginPath(); ctx.arc(player.x, player.y, 46, 0, TAU); ctx.stroke();
         ctx.restore();
       }
@@ -1354,14 +1548,14 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
   function renderLoading(){
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.fillStyle = '#030815'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#030814'; ctx.fillRect(0,0,W,H);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = 'bold 28px sans-serif'; ctx.fillStyle = '#00e5ff';
+    ctx.font = 'bold 28px sans-serif'; ctx.fillStyle = '#00f0ff';
     ctx.fillText('جاري تحميل الترسانة الكونية...', W/2, H/2 - 20);
     const prog = imgTotal > 0 ? imgLoadedCount/imgTotal : 0;
     ctx.fillStyle = '#081730';
     ctx.fillRect(W/2-120, H/2+20, 240, 14);
-    ctx.fillStyle = '#00e5ff';
+    ctx.fillStyle = '#00f0ff';
     ctx.fillRect(W/2-120, H/2+20, 240*prog, 14);
   }
 
@@ -1377,9 +1571,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     render();
   }
 
-  /* =========================================================
-     ★ نظام التحكم اللمسي النسبي الاحترافي (Relative Zero-Lag Touch) ★
-     ========================================================= */
+  /* التحكم اللمسي المباشر */
   let dragging = false;
   let lastTouchX = 0, lastTouchY = 0;
   const keys = {};
@@ -1404,8 +1596,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   cv.addEventListener('pointermove', e => {
     if (!dragging || state !== 'play') return;
     const a = point(e);
-    
-    /* حساب الفرق النسبي للحركة فورياً */
     const sens = { slow: 1.1, normal: 1.45, fast: 1.85 }[save.settings.controls] || 1.45;
     const dx = (a.x - lastTouchX) * sens;
     const dy = (a.y - lastTouchY) * sens;
@@ -1413,7 +1603,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     lastTouchX = a.x;
     lastTouchY = a.y;
 
-    /* تحديث موقع الهدف مباشرة دون أي تأخير */
     player.tx = clamp(player.tx + dx, 25, W - 25);
     player.ty = clamp(player.ty + dy, 60, H - 60);
   }, { passive: false });
@@ -1439,4 +1628,4 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 })();
 </script>
 </body>
-  </html>
+</html>
