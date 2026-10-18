@@ -33,7 +33,7 @@ html,body{
 }
 canvas{display:block;width:100%;height:100%}
 
-/* HUD & UI - Glassmorphism */
+/* HUD & UI */
 #hud{
   position:absolute;inset:0 0 auto;
   padding:calc(var(--safe-top) + 10px) 12px 10px;
@@ -176,7 +176,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 (() => {
   'use strict';
 
-  /* تسجيل Service Worker للتثبيت كأندرويد أصيل */
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
@@ -200,18 +199,13 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   }
   addEventListener('resize', resize); resize();
 
-  /* =========================================================
-     نظام الاهتزاز الفيزيائي للأندرويد (Haptic Feedback)
-     ========================================================= */
   function vibrate(ms=30){
     if ('vibrate' in navigator && save?.settings?.shake) {
       try { navigator.vibrate(ms); } catch(e){}
     }
   }
 
-  /* =========================================================
-     الصور
-     ========================================================= */
+  /* الصور */
   const files = {
     player:'player.png', player2:'player2.png',
     grunt:'enemy_grunt.png', zig:'enemy_zig.png',
@@ -242,9 +236,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     return true;
   }
 
-  /* =========================================================
-     الأسلحة والعوالم
-     ========================================================= */
   const WEAP = [
     ['🔫','رشاش البلازما','machine','طلقات مزدوجة متسارعة'],
     ['🚀','صواريخ التتبع','missile','صواريخ موجهة مدمرة'],
@@ -270,9 +261,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   });
   const today = () => new Date().toLocaleDateString('en-CA');
 
-  /* =========================================================
-     الحفظ
-     ========================================================= */
   let save = {
     coins:0, best:0, unlocked:[0], playerName:'كابتن',
     upgrades:{damage:0, armor:0, magnet:0},
@@ -289,9 +277,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   if (save.missions.date !== today()) save.missions = {date:today(),kills:0,bosses:0,earned:0,claimed:[false,false,false]};
   const persist = () => { try { localStorage.setItem('airLegendsSave', JSON.stringify(save)); } catch(e){} };
 
-  /* =========================================================
-     حالة اللعبة والمؤثرات
-     ========================================================= */
   let selectedLevel = Math.min(399, save.progress);
   let level = 1, worldIndex = 0, levelDuration = 28;
   let state = 'menu', score = 0, earned = 0, kills = 0, world = 1;
@@ -304,21 +289,18 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   let enemies = [], shots = [], bad = [], drops = [], particles = [], shockwaves = [];
   const remoteShots = [];
 
-  /* خلفية النجوم متعددة الطبقات (Parallax Layers) */
   const starLayers = [
     Array.from({length:35}, () => ({x:rnd(0,W), y:rnd(0,H), s:rnd(0.6,1.2), v:45, a:rnd(0.2,0.5)})),
     Array.from({length:35}, () => ({x:rnd(0,W), y:rnd(0,H), s:rnd(1.4,2.2), v:95, a:rnd(0.5,0.8)})),
     Array.from({length:20}, () => ({x:rnd(0,W), y:rnd(0,H), s:rnd(2.5,3.6), v:160, a:1.0}))
   ];
 
+  /* إضافة خاصية tilt لإمالة الطائرة بحسب سرعة الانعطاف */
   const player = {
-    x:W/2, y:H-160, tx:W/2, ty:H-160,
+    x:W/2, y:H-160, tx:W/2, ty:H-160, tilt:0,
     hp:3, maxHp:3, inv:0, shield:0, power:1, fire:0, bombs:2, alive:true
   };
 
-  /* =========================================================
-     الشبكة والمزامنة
-     ========================================================= */
   const net = {
     ws: null, connected: false, roomCode: '', myId: '', hostId: '', host: false,
     players: new Map(), online: false, sendT: 0, pendingBullets: [], lastHurtSent: 0
@@ -453,9 +435,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     burst(player.x, player.y, '#00e5ff', 30);
   }
 
-  /* =========================================================
-     نظام الصوت التوليدي الخفيف
-     ========================================================= */
   function tone(f=440, d=.08){
     if (!sound) return;
     try {
@@ -472,9 +451,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     } catch(e){}
   }
 
-  /* =========================================================
-     صوت WebRTC عبر TURN
-     ========================================================= */
   let peerConn = null, localStream = null, micOn = false;
   let makingOffer = false, ignoreOffer = false, isSettingRemoteAnswerPending = false;
   const polite = () => !net.host;
@@ -564,9 +540,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     btn.textContent = micOn ? '🎙️' : '🎤';
   }
 
-  /* =========================================================
-     واجهة المستخدم HUD
-     ========================================================= */
   const hudCache = {};
   function setText(id, val){
     if (hudCache[id] === val) return;
@@ -697,7 +670,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     shake = 0; combo = 1; comboTime = 0; slow = 0; weapon = 0;
     enemies = []; shots = []; bad = []; drops = []; particles = []; shockwaves = [];
     remoteShots.length = 0;
-    Object.assign(player, { x:W/2, y:H-160, tx:W/2, ty:H-160,
+    Object.assign(player, { x:W/2, y:H-160, tx:W/2, ty:H-160, tilt:0,
       maxHp:3+save.upgrades.armor, hp:3+save.upgrades.armor,
       inv:2, shield:0, power:1, fire:0, bombs:3, alive:true });
     $('overlay').classList.add('hide');
@@ -754,7 +727,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       <div class="card"><label>🔉 مستوى الصوت</label><input id="setVolume" type="range" min="0" max="100" value="${v.volume}"></div>
       <div class="card"><label>📳 اهتزاز الهاتف (Haptic)</label><input id="setShake" type="checkbox" ${v.shake?'checked':''}></div>
       <div class="card"><label>✨ جودة الجرافيكس</label><select id="setParticles" style="background:#06142a;color:#fff;padding:6px;border-radius:8px"><option value="low">اقتصادي</option><option value="medium">متوازن</option><option value="high">خارق (Neon Ultra)</option></select></div>
-      <div class="card"><label>🕹️ حساسية اللمس</label><select id="setControls" style="background:#06142a;color:#fff;padding:6px;border-radius:8px"><option value="slow">دقيقة</option><option value="normal">متوازنة</option><option value="fast">سريعة جداً</option></select></div>
+      <div class="card"><label>🕹️ حساسية وسرعة اللمس</label><select id="setControls" style="background:#06142a;color:#fff;padding:6px;border-radius:8px"><option value="slow">دقيقة (1.1×)</option><option value="normal">سلسة وسريعة (1.45×)</option><option value="fast">فائقة الرشاقة (1.85×)</option></select></div>
       <button class="big" id="saveSettings">💾 حفظ الإعدادات</button>
       <button class="big secondary" id="back">⬅ الرئيسية</button>
     `);
@@ -839,7 +812,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     shake = 0; combo = 1; comboTime = 0; slow = 0; weapon = 0;
     enemies = []; shots = []; bad = []; drops = []; particles = []; shockwaves = [];
     remoteShots.length = 0;
-    Object.assign(player, { x:W/2, y:H-160, tx:W/2, ty:H-160,
+    Object.assign(player, { x:W/2, y:H-160, tx:W/2, ty:H-160, tilt:0,
       maxHp:3+save.upgrades.armor, hp:3+save.upgrades.armor,
       inv:2, shield:0, power:1, fire:0, bombs:2, alive:true });
     $('overlay').classList.add('hide');
@@ -888,9 +861,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
   function gain(n){ save.coins += n; earned += n; save.missions.earned += n; persist(); }
 
-  /* =========================================================
-     نظام الجرافيكس المطور (VFX, Particles & Shockwaves)
-     ========================================================= */
   function addShockwave(x, y, maxR=60, color='#00e5ff'){
     shockwaves.push({ x, y, r:4, maxR, color, alpha:1 });
   }
@@ -904,7 +874,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     }
   }
 
-  /* نفاثات الطائرة البلازمية */
   function addThrusterParticles(x, y, color1='#00e5ff', color2='#ff7a00'){
     if (save.settings.particles === 'low') return;
     particles.push({
@@ -936,20 +905,20 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
     if (weapon === 0) {
       for (let i = -extra; i <= extra; i++)
-        newBullets.push({x:x+i*10, y, vx:i*30, vy:-900, dmg:damage, kind:'machine', r:5});
+        newBullets.push({x:x+i*10, y, vx:i*30, vy:-950, dmg:damage, kind:'machine', r:5});
     } else if (weapon === 1) {
       for (let i = 0; i < 1+Math.floor(extra/2); i++)
-        newBullets.push({x:x+(i-0.5)*20, y, vx:0, vy:-480, dmg:damage*3, kind:'missile', r:9});
+        newBullets.push({x:x+(i-0.5)*20, y, vx:0, vy:-520, dmg:damage*3, kind:'missile', r:9});
     } else if (weapon === 2) {
-      newBullets.push({x, y, vx:0, vy:-1200, dmg:damage*1.4, kind:'laser', r:12});
+      newBullets.push({x, y, vx:0, vy:-1250, dmg:damage*1.4, kind:'laser', r:12});
     } else if (weapon === 4) {
       for (let i = -1-extra; i <= 1+extra; i++)
-        newBullets.push({x:x+i*7, y, vx:i*65, vy:-720, dmg:damage*1.5, kind:'fire', r:8});
+        newBullets.push({x:x+i*7, y, vx:i*65, vy:-750, dmg:damage*1.5, kind:'fire', r:8});
     } else if (weapon === 5) {
       const n = 12 + extra*2;
       for (let i = 0; i < n; i++){
         const a = TAU*i/n;
-        newBullets.push({x, y, vx:Math.cos(a)*600, vy:Math.sin(a)*600, dmg:damage, kind:'radial', r:5});
+        newBullets.push({x, y, vx:Math.cos(a)*620, vy:Math.sin(a)*620, dmg:damage, kind:'radial', r:5});
       }
     }
 
@@ -1044,7 +1013,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
   }
 
   /* =========================================================
-     التحديث الفيزيائي (Game Loop Logic)
+     ★ تحديث الحركة الفيزيائية السلسة والانعطاف ★
      ========================================================= */
   function update(dt){
     const ds = dt/1000;
@@ -1058,30 +1027,39 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     if (comboTime <= 0) combo = 1;
 
     if (player.alive){
-      const move = 400*ds;
-      if (keys.ArrowLeft  || keys.KeyA) player.tx -= move;
-      if (keys.ArrowRight || keys.KeyD) player.tx += move;
-      if (keys.ArrowUp    || keys.KeyW) player.ty -= move;
-      if (keys.ArrowDown  || keys.KeyS) player.ty += move;
+      /* سرعة الكيبورد أسرع بكثير لتكون رشيقة */
+      const keySpeed = 680 * ds;
+      if (keys.ArrowLeft  || keys.KeyA) player.tx -= keySpeed;
+      if (keys.ArrowRight || keys.KeyD) player.tx += keySpeed;
+      if (keys.ArrowUp    || keys.KeyW) player.ty -= keySpeed;
+      if (keys.ArrowDown  || keys.KeyS) player.ty += keySpeed;
+
       player.tx = clamp(player.tx, 25, W-25);
-      player.ty = clamp(player.ty, 110, H-95);
+      player.ty = clamp(player.ty, 60, H-60);
 
-      const k = 1 - Math.exp(-15*ds);
-      player.x += (player.tx-player.x)*k;
-      player.y += (player.ty-player.y)*k;
+      /* نعومة حركة فورية وسلسة دون أي شعور بالإسفنجية */
+      const prevX = player.x;
+      const k = 1 - Math.exp(-38 * ds);
+      player.x += (player.tx - player.x) * k;
+      player.y += (player.ty - player.y) * k;
 
-      /* إضافة ألسنة اللهب النفاثة */
+      /* حساب زاوية الإمالة (Tilt) لانسيابية طيران مذهلة */
+      const deltaX = (player.x - prevX);
+      const targetTilt = clamp(deltaX * 0.045, -0.28, 0.28);
+      player.tilt += (targetTilt - player.tilt) * (1 - Math.exp(-22 * ds));
+
+      /* عوادم نفاثة واقعية */
       addThrusterParticles(player.x - 14, player.y);
       addThrusterParticles(player.x + 14, player.y);
 
       player.fire -= ds;
       if (player.fire <= 0){
         fire();
-        player.fire = [.12,.44,.12,1,.24,.52][weapon];
+        player.fire = [.11,.42,.11,.9,.22,.50][weapon];
       }
     }
 
-    /* موجات الصدمة Shockwaves */
+    /* موجات الصدمة */
     for (let i = shockwaves.length - 1; i >= 0; i--){
       const sw = shockwaves[i];
       sw.r += (sw.maxR - sw.r) * (ds * 9);
@@ -1091,8 +1069,8 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 
     if (net.online){
       for (const e of enemies){
-        e.x += (e.tx - e.x)*Math.min(1, ds*14);
-        e.y += (e.ty - e.y)*Math.min(1, ds*14);
+        e.x += (e.tx - e.x)*Math.min(1, ds*16);
+        e.y += (e.ty - e.y)*Math.min(1, ds*16);
         e.t += ds; if (e.flash > 0) e.flash -= ds;
       }
       for (let i = bad.length-1; i >= 0; i--){
@@ -1168,7 +1146,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       }
     }
 
-    /* طلقات اللاعب واصطداماتها */
     for (let i = shots.length-1; i >= 0; i--){
       const b = shots[i];
       b.life -= ds;
@@ -1176,8 +1153,8 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
         const t = nearest(b.x, b.y);
         if (t){
           const dx = t.x-b.x, dy = t.y-b.y, d = Math.hypot(dx,dy)||1;
-          b.vx += (dx/d*600 - b.vx)*Math.min(1,ds*4.5);
-          b.vy += (dy/d*600 - b.vy)*Math.min(1,ds*4.5);
+          b.vx += (dx/d*620 - b.vx)*Math.min(1,ds*5);
+          b.vy += (dy/d*620 - b.vy)*Math.min(1,ds*5);
         }
       }
       b.x += b.vx*ds; b.y += b.vy*ds;
@@ -1202,7 +1179,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       if (removed) continue;
     }
 
-    /* المكافآت الساقطة */
     for (let i = drops.length-1; i >= 0; i--){
       const a = drops[i];
       a.t += ds; a.y += 105*ds;
@@ -1221,7 +1197,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       }
     }
 
-    /* تحديث الجزيئات والنجوم */
     for (let i = particles.length-1; i >= 0; i--){
       const a = particles[i];
       a.life -= ds; a.x += a.vx*ds; a.y += a.vy*ds;
@@ -1238,9 +1213,7 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     hud();
   }
 
-  /* =========================================================
-     محرك الرسوميات فائق التوهج (High-End Rendering)
-     ========================================================= */
+  /* الرندرة */
   let bgCache = null, bgCacheWorld = -1;
   function getBg(){
     if (bgCacheWorld === world && bgCache) return bgCache;
@@ -1257,7 +1230,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     ctx.fillStyle = getBg();
     ctx.fillRect(0,0,W,H);
 
-    /* خلفية الفضاء الاحترافية */
     if (imgs.background?.ok) {
       ctx.globalAlpha = 0.85;
       pic('background', W/2, H/2, W, H);
@@ -1270,7 +1242,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       shake *= 0.88;
     }
 
-    /* رسم طبقات النجوم البارالاكس */
     for (const layer of starLayers){
       for (const s of layer){
         ctx.fillStyle = '#bce6ff';
@@ -1280,7 +1251,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     }
     ctx.globalAlpha = 1.0;
 
-    /* رسم حلقات الصدمة الانفجارية (Shockwaves) */
     for (const sw of shockwaves){
       ctx.save();
       ctx.strokeStyle = sw.color;
@@ -1292,7 +1262,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       ctx.restore();
     }
 
-    /* المكافآت والأشياء الساقطة مع توهج نيون */
     for (const a of drops){
       ctx.save();
       ctx.shadowBlur = 18; ctx.shadowColor = '#ffe259';
@@ -1307,7 +1276,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       ctx.restore();
     }
 
-    /* الأعداء والزعماء مع وميض الهجوم */
     for (const e of enemies){
       const sz = e.type === 'boss' ? 180 : e.type === 'tank' ? 96 : 72;
       ctx.save();
@@ -1320,7 +1288,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     $('bossBar').style.display = bossEnemy && !bossEnemy.enter ? 'block' : 'none';
     if (bossEnemy) $('bossFill').style.width = 100*Math.max(0, bossEnemy.hp/bossEnemy.max) + '%';
 
-    /* رصاص الأعداء بتأثير Blend Mode متوهج */
     ctx.globalCompositeOperation = 'lighter';
     for (const b of bad){
       if (!pic('ebullet', b.x, b.y, 28, 28)){
@@ -1330,13 +1297,11 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       }
     }
 
-    /* رصاص الحلفاء عبر الشبكة */
     for (const b of remoteShots){
       ctx.shadowBlur = 14; ctx.shadowColor = '#ffbe0b';
       pic(b.sprite, b.x, b.y, 20, 42, Math.atan2(b.vy, b.vx) + Math.PI/2);
     }
 
-    /* رصاص اللاعب الرئيسي بتوهج ليزري أزرق نيون */
     for (const b of shots){
       ctx.shadowBlur = 15;
       ctx.shadowColor = b.kind === 'fire' ? '#ff7a00' : '#00e5ff';
@@ -1352,7 +1317,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = 'source-over';
 
-    /* رسم طائرات الفريق في الأونلاين */
     if (net.online){
       for (const [id,p] of net.players){
         if (id === net.myId || !p.alive) continue;
@@ -1365,9 +1329,9 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       }
     }
 
-    /* رسم طائرة اللاعب والدروع */
+    /* رسم طائرة اللاعب مع زاوية الإمالة (Tilt) */
     if (player.alive && state !== 'over' && (player.inv <= 0 || Math.floor(performance.now()/80)%2)){
-      pic(net.online && !net.host ? 'player2' : 'player', player.x, player.y, 84, 84);
+      pic(net.online && !net.host ? 'player2' : 'player', player.x, player.y, 84, 84, player.tilt);
       if (player.shield > 0){
         ctx.save();
         ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 3;
@@ -1377,7 +1341,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
       }
     }
 
-    /* جزيئات الانفجارات والبلازما */
     ctx.globalCompositeOperation = 'lighter';
     for (const a of particles){
       ctx.globalAlpha = Math.max(0, a.life/a.max);
@@ -1389,7 +1352,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     ctx.restore();
   }
 
-  /* شاشة البداية الاحترافية عند تحميل الأصول */
   function renderLoading(){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.fillStyle = '#030815'; ctx.fillRect(0,0,W,H);
@@ -1403,7 +1365,6 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     ctx.fillRect(W/2-120, H/2+20, 240*prog, 14);
   }
 
-  /* الحلقة الأساسية (Frame Loop) */
   let last = 0, mainShown = false;
   function loop(ts){
     requestAnimationFrame(loop);
@@ -1416,28 +1377,50 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
     render();
   }
 
-  /* إدخال اللمس للأندرويد مع نعومة استجابة عالية */
-  let dragging = false, sx = 0, sy = 0, px = 0, py = 0;
+  /* =========================================================
+     ★ نظام التحكم اللمسي النسبي الاحترافي (Relative Zero-Lag Touch) ★
+     ========================================================= */
+  let dragging = false;
+  let lastTouchX = 0, lastTouchY = 0;
   const keys = {};
+
   function point(e){
     const r = cv.getBoundingClientRect();
-    return { x: (e.clientX-r.left)/r.width*W, y: (e.clientY-r.top)/r.height*H };
+    return {
+      x: ((e.clientX - r.left) / r.width) * W,
+      y: ((e.clientY - r.top) / r.height) * H
+    };
   }
-  cv.onpointerdown = e => {
+
+  cv.addEventListener('pointerdown', e => {
     if (state !== 'play') return;
     dragging = true;
     const a = point(e);
-    sx = a.x; sy = a.y; px = player.tx; py = player.ty;
+    lastTouchX = a.x;
+    lastTouchY = a.y;
     cv.setPointerCapture(e.pointerId);
-  };
-  cv.onpointermove = e => {
+  }, { passive: false });
+
+  cv.addEventListener('pointermove', e => {
     if (!dragging || state !== 'play') return;
     const a = point(e);
-    const sens = {slow:0.8, normal:1.15, fast:1.6}[save.settings.controls] || 1.15;
-    player.tx = clamp(px + (a.x-sx)*sens, 25, W-25);
-    player.ty = clamp(py + (a.y-sy)*sens, 110, H-95);
-  };
-  cv.onpointerup = cv.onpointercancel = () => dragging = false;
+    
+    /* حساب الفرق النسبي للحركة فورياً */
+    const sens = { slow: 1.1, normal: 1.45, fast: 1.85 }[save.settings.controls] || 1.45;
+    const dx = (a.x - lastTouchX) * sens;
+    const dy = (a.y - lastTouchY) * sens;
+
+    lastTouchX = a.x;
+    lastTouchY = a.y;
+
+    /* تحديث موقع الهدف مباشرة دون أي تأخير */
+    player.tx = clamp(player.tx + dx, 25, W - 25);
+    player.ty = clamp(player.ty + dy, 60, H - 60);
+  }, { passive: false });
+
+  const stopDrag = () => { dragging = false; };
+  cv.addEventListener('pointerup', stopDrag);
+  cv.addEventListener('pointercancel', stopDrag);
 
   addEventListener('keydown', e => {
     keys[e.code] = true;
@@ -1456,4 +1439,4 @@ button:active{transform:scale(0.92);filter:brightness(1.2)}
 })();
 </script>
 </body>
-</html>
+  </html>
